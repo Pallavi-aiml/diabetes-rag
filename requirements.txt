@@ -1,0 +1,52 @@
+# Core
+python-dotenv
+pydantic
+fastapi
+uvicorn[standard]
+
+# Data ingestion
+pymupdf
+requests
+biopython
+unstructured
+
+# Embeddings
+sentence-transformers
+transformers
+torch
+
+# Vector store
+chromadb
+faiss-cpu
+
+# Retrieval
+rank-bm25
+
+# LLM
+groq
+openai
+ollama
+
+# Orchestration
+langchain
+langchain-community
+llama-index
+
+# Evidence verification (bart-large-mnli via transformers)
+transformers
+
+# Frontend
+streamlit
+
+# Evaluation
+ragas
+datasets
+mlflow
+
+# Testing
+pytest
+httpx
+
+
+
+

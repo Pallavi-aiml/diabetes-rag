@@ -1,0 +1,29 @@
+# Environment
+venv/
+.env
+
+# Data files (too large for GitHub)
+data/chroma_db/
+data/processed/faiss.index
+data/processed/chunks.pkl
+data/processed/pubmed_records.json
+data/processed/pdf_records.json
+data/raw/*.xml
+data/raw/*.pdf
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Model cache
+*.pkl
+models/
+
+# Logs
+mlruns/
+*.log
+
+# VS Code
+.vscode/

@@ -1,0 +1,737 @@
+[
+  {
+    "question": "What is the recommended HbA1c target for most non-pregnant adults with type 2 diabetes?",
+    "answer": "The recommended HbA1c target for most patients with type 2 diabetes is to keep their HbA1c below 7% [SOURCE 1]. This aligns with the recommended HbA1c target of < 7.0% cited in recent literature [SOURCE 2]. However, it is important to note that treatment targets need to be individualized [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "2.5  \t Consider triple oral therapy or initiation of insulin in patients not at target with \ndual therapy.\n2.6  \t Most patients with type 2 diabetes should aim to keep their HbA1c below 7%. \nHowever, \u2026",
+      "Type 2 diabetes risk alleles in peptidyl-glycine alpha-amidating monooxygenase influence GLP-1 levels and response to GLP-1 receptor agonists.. BACKGROUND: Type 2 diabetes (T2D) is a leading cause of \u2026",
+      ". The American Diabetes Association and the European Association for the Study of Diabetes convened a panel to update the consensus statement on the management of type 2 diabetes in non-pregnant adult\u2026",
+      "ICMR Guidelines for Management of Type 2 Diabetes 2018\n14\nSECTION 5  MONITORING AND FOLLOW UP OF PEOPLE WITH DIABETES \n5.1 How to Monitor and Follow up People with Diabetes?\nz\nz\nBlood glucose - FPG an\u2026",
+      "Intensive vs standard blood pressure control in adults with type 2 diabetes: a systematic review and GRADE-based meta-analysis.. The optimal blood pressure (BP) target for older adults with type 2 dia\u2026"
+    ],
+    "ground_truth": "Less than 7.0% (53 mmol/mol) per ADA 2024 Standards of Care.",
+    "confidence": 0.8142,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the first-line pharmacological treatment for type 2 diabetes?",
+    "answer": "Based on the provided evidence, **metformin** is the first-line pharmacological treatment for type 2 diabetes [SOURCE 1] [SOURCE 2] [SOURCE 3] [SOURCE 4] [SOURCE 5].\n\nKey supporting details from the evidence include:\n*   It is described as the first-line treatment for type 2 diabetes in general [SOURCE 1] [SOURCE 2] [SOURCE 4] [SOURCE 5].\n*   It is specifically identified as the first-line treatment for type 2 diabetes mellitus in pediatric patients [SOURCE 3].\n*   Its status as first-line therapy is attributed to its efficacy, affordability, and safety [SOURCE 4].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Rapid and selective gut microbiome modulation by polyherbal formulation in type 2 diabetes.. Metformin, the first-line treatment for type 2 diabetes, often induces gastrointestinal side effects, affec\u2026",
+      ". In conclusion, although metformin remains the first-line agent for the treatment of type 2 diabetes, the choice of a second-line agent depends on several factors, in particular the cardiovascular ri\u2026",
+      "Interindividual variability in metformin pharmacokinetics in pediatric patients.. Metformin is the first-line treatment for type 2 diabetes mellitus in pediatric patients\u00a0and it's\u00a0prescriptions in chi\u2026",
+      "Metformin Beyond Glycemic Control: Cardiovascular Protection and Diabetes Prevention.. Metformin, the most widely prescribed oral antihyperglycemic agent, is established as the first-line therapy for \u2026",
+      "Metformin Inhibits Inflammation by Targeting the NLRP3 Inflammasome: Linking NF-\u03baB/NEK7/AMPK Signaling to Mitochondrial Function.. Metformin, the first-line treatment for type 2 diabetes, has signific\u2026"
+    ],
+    "ground_truth": "Metformin is recommended as the preferred initial pharmacological agent for type 2 diabetes.",
+    "confidence": 0.7486,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What blood pressure target is recommended for patients with diabetes?",
+    "answer": "Based on the provided evidence, the recommended blood pressure targets for patients with diabetes are as follows:\n\n*   **General Recommendation:** People with diabetes who have hypertension should be treated to blood pressure targets of **<130/80 mmHg** [SOURCE 3].\n*   **Type 1 Diabetes:** A similar blood pressure target of **<130/80 mmHg** is recommended for people with type 1 diabetes [SOURCE 1].\n*   **Diabetic Renal Disease:** In patients with diabetic renal disease, even lower blood pressure targets are recommended [SOURCE 5].\n*   **Avoidance of Lower Targets:** Treatment should not be targeted to **<120/80 mmHg** [SOURCE 1].\n\nThe provided evidence does not clearly address specific numerical targets for older adults with type 2 diabetes, although it notes that the optimal target for this group remains controversial [SOURCE 4].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "sure targets of <130/80 mmHg. Notably,\nthere is an absence of high-quality data\navailable to guide blood pressure targets in\npeople with type 1 diabetes, but a similar\nblood pressure target of <130/80\u2026",
+      "betes, there was a signi\ufb01cant 51% reduc-\ntion in the treatment group with a target\ndiastolic blood pressure of <80 mmHg\ncompared with a target diastolic blood\npressure of <90 mmHg.\nMeta-analyses of Tr\u2026",
+      "trial revealed that treatment with perindo-\npril/indapamide to an achieved systolic\nblood pressure of \u0001135 mmHg signi\ufb01-\ncantly decreased cardiovascular event rates\ncompared with a placebo treatment wi\u2026",
+      "Intensive vs standard blood pressure control in adults with type 2 diabetes: a systematic review and GRADE-based meta-analysis.. The optimal blood pressure (BP) target for older adults with type 2 dia\u2026",
+      "In patients with diabetic renal disease, even lower BP targets are recommended.\u2026"
+    ],
+    "ground_truth": "A blood pressure target of less than 130/80 mmHg is recommended for most patients with diabetes.",
+    "confidence": 0.8286,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What are the main microvascular complications of diabetes?",
+    "answer": "The main microvascular complications of diabetes include:\n\n*   **Diabetic Retinopathy (DR)**: Described as the main blinding complication of type 2 diabetes [SOURCE 4]. It is also identified as one of the most frequent microvascular complications of diabetes mellitus [SOURCE 3].\n*   **Diabetic Kidney Disease (DKD) / Nephropathy**: Identified as one of the most frequent microvascular complications of diabetes mellitus [SOURCE 3]. It is also listed as a primary microvascular complication alongside neuropathy and retinopathy [SOURCE 5].\n*   **Diabetic Neuropathy**: Listed as a primary microvascular complication of type 2 diabetes mellitus [SOURCE 5].\n\nThese complications are consistently cited across multiple sources as the primary long-term consequences of diabetes [SOURCE 1, SOURCE 2, SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "gression of microvascular complications\n(retinopathy, neuropathy, and diabetic\nkidney disease). Follow-up of the DCCT\ncohorts in the Epidemiology of Diabetes\nInterventions and Complications (EDIC)\nstu\u2026",
+      "Advanced Glycation End Products and Genetic Polymorphism in the Pathogenesis of Microvascular Complications in Type 2 Diabetes Mellitus: A Narrative Review.. Patients with type 2 diabetes mellitus oft\u2026",
+      "Urinary biomarkers in the early diagnosis of diabetic kidney disease and diabetic retinopathy: A pilot study.. Diabetic kidney disease (DKD) and diabetic retinopathy (DR) are the most frequent microva\u2026",
+      "None. Diabetes retinopathy (DR) is the main blinding complication of type 2 diabetes (T2DM). Glycated hemoglobin (HbA1c) can reflect long-term blood glucose control and optical coherence tomography (O\u2026",
+      "Knowledge and awareness about microvascular complications of diabetes mellitus among Taif University medical students.. Microvascular complications are among the most significant long-term consequence\u2026"
+    ],
+    "ground_truth": "The main microvascular complications of diabetes are diabetic retinopathy, nephropathy, and neuropathy.",
+    "confidence": 0.7042,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the role of SGLT2 inhibitors in type 2 diabetes with heart failure?",
+    "answer": "Based on the provided evidence, the role of SGLT2 inhibitors in patients with type 2 diabetes and heart failure is characterized by the following:\n\n*   **Recommendation Status:** SGLT2 inhibitors are recommended for patients with type 2 diabetes and heart failure [SOURCE 1].\n*   **Clinical Benefits:** These agents have demonstrated cardiovascular and renal benefits in this specific patient population [SOURCE 2].\n*   **Prevention of Progression:** In individuals with prediabetes who also have heart failure, SGLT2 inhibitors lower the chance of developing overt type 2 diabetes by approximately one-fifth [SOURCE 4].\n\nThe provided evidence does not clearly address specific dosing guidelines, safety profiles, or outcomes in post-heart transplant patients beyond noting that the role in that specific subgroup remains unclear [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Association between SGLT2 inhibitors and outcomes after heart transplant in patients with type 2 diabetes: A systematic review and meta-analysis.. Sodium-glucose cotransporter 2 inhibitors (SGLT2i) ar\u2026",
+      ". Dedicated RCTs focusing on diabetic, particularly non-STEMI, populations are needed to confirm these findings. What is already known on this topic: SGLT2 inhibitors have demonstrated cardiovascular \u2026",
+      "Defining the Roles of SGLT2 Inhibitors and GLP-1 Receptor Agonists in the Management of Chronic Kidney Disease in Adults with Type 2 Diabetes With or Without Overweight/Obesity: An International Delph\u2026",
+      ". In this article we look at whether SGLT2 inhibitors might also help to prevent type 2 diabetes in people with prediabetes. Research so far shows that SGLT2 inhibitors lower the chance of developing \u2026",
+      "The Role of SGLT2 Inhibitors in the Prevention of Type 2 Diabetes: A Narrative Review of Current Evidence.. Prediabetes is a metabolic state that frequently precedes overt type 2 diabetes mellitus (T2\u2026"
+    ],
+    "ground_truth": "SGLT2 inhibitors reduce hospitalisation for heart failure and are recommended in T2DM patients with established heart failure.",
+    "confidence": 0.7998,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "When is metformin contraindicated in diabetes patients?",
+    "answer": "Based on the provided evidence, metformin is contraindicated or should be withheld in the following situations:\n\n*   **Renal Impairment:** Metformin is contraindicated in individuals with an estimated glomerular filtration rate (eGFR) <30 mL/min/1.73 m\u00b2 [SOURCE 2].\n*   **Surgical or Diagnostic Procedures:** It is advisable to stop metformin at least 24 hours before elective major surgery or the use of radiocontrast media [SOURCE 1].\n*   **General Contraindications:** Metformin should be withdrawn if any contraindications to its use occur [SOURCE 1].\n\nAdditionally, while not explicitly labeled as a \"contraindication\" in the text, the evidence notes that metformin should not be initiated for individuals with specific renal criteria (implied by the context of eGFR monitoring and reassessment when eGFR falls to <45 mL/min/1.73 m\u00b2) [SOURCE 2].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "recommended as the first line treatment in type 2 diabetes. Metformin has a favorable \neffect on lipids by decreasing triglycerides. It is advisable to stop metformin at least 24 \nhours before electiv\u2026",
+      "treatment should be considered. The re-\nvised FDA guidance states that 1) met-\nformin is contraindicated in individuals\nwith an eGFR <30 mL/min/1.73 m2, 2)\neGFR should be monitored while taking\nmetfor\u2026",
+      ". Efficacy and safety of imeglimin as a monotherapy is well demonstrated in treatment-naive patients when metformin is contraindicated or in patients who are intolerant to metformin, metformin failure\u2026",
+      "prevented in up to a third of people with prediabetes. When lifestyle alone is not \nsufficient and especially in those with combined IFG and IGT where progression to \ntype 2 diabetes appear imminent, \u2026",
+      "Interindividual variability in metformin pharmacokinetics in pediatric patients.. Metformin is the first-line treatment for type 2 diabetes mellitus in pediatric patients\u00a0and it's\u00a0prescriptions in chi\u2026"
+    ],
+    "ground_truth": "Metformin is contraindicated in patients with eGFR less than 30 mL/min/1.73m\u00b2 due to risk of lactic acidosis.",
+    "confidence": 0.7602,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What fasting plasma glucose level is used to diagnose diabetes?",
+    "answer": "The fasting plasma glucose level used to diagnose diabetes is **\u2265 7.0 mmol/L** [SOURCE 3]. This is equivalent to **\u2265 126 mg/dl** [SOURCE 2].\n\nDiagnosis can be based on this fasting plasma glucose (FPG) value, among other criteria such as A1C or 2-hour plasma glucose [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "DIAGNOSTIC TESTS FOR DIABETES\nRecommendations\n2.1a Diagnose diabetes based on A1C or plasma glucose criteria, either the fasting\nplasma glucose (FPG) value, 2-h plasma glucose (2-h PG) value during a \u2026",
+      "the first trimester is mainly to rule out pre-existing diabetes. For this, fasting blood \nglucose or random blood glucose or HbA1C should be done.  If the fasting glucose \nis \u2265 126 mg/dl or the random\u2026",
+      "sexes and the fifth leading cause of \ndeath in women in 2012 (1).\nBlood glucose levels that are higher-\nthan-optimal, even if below the \ndiagnostic threshold for diabetes, \nare a major source of morta\u2026",
+      "has increased dramatically, especially in\nracial and ethnic minority populations\n(184,214). A few studies suggest oral glu-\ncose tolerance tests or fasting plasma glu-\ncose values as more suitable dia\u2026",
+      "at that moment (reflected by \nthe fasting and 2-hour blood \nglucose measurements mentioned \nabove). However, the test is \nmore costly than blood glucose \nmeasurement (5).\nBlood glucose measurement to \u2026"
+    ],
+    "ground_truth": "A fasting plasma glucose of 126 mg/dL (7.0 mmol/L) or higher on two occasions is diagnostic of diabetes.",
+    "confidence": 0.7906,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What lifestyle interventions are recommended for type 2 diabetes prevention?",
+    "answer": "Based on the provided evidence, the following lifestyle interventions are recommended for the prevention of type 2 diabetes:\n\n*   **Dietary Modifications:** Population-wide changes in diet, specifically a reduction in calorie intake, have been shown to affect type 2 diabetes prevalence [SOURCE 1].\n*   **Physical Activity:** A simultaneous increase in physical activity alongside dietary changes is associated with effects on type 2 diabetes prevalence [SOURCE 1].\n*   **Lifestyle Modifications:** For individuals with prediabetes or at risk of developing type 2 diabetes, lifestyle modifications are identified as key preventive strategies [SOURCE 4].\n*   **Primary Care Delivery:** Diabetes prevention programs delivered in primary care settings are effective for individuals with prediabetes or at risk of developing type 2 diabetes [SOURCE 4].\n*   **Overweight and Obesity Management:** Actions to address overweight and obesity are critical to preventing type 2 diabetes [SOURCE 1].\n\nThe provided evidence does not clearly address specific multicomponent intervention protocols for prevention in real-world settings, noting that evidence regarding such interventions remains limited [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "when the population experienced \na reduction in calorie intake and a \nsimultaneous increase in physical \nactivity (2), suggesting population-\nwide changes in diet and physical \nactivity do affect type\u2026",
+      "Comparative efficacy of dietary interventions for overweight or obese adults with type 2 diabetes: a systematic review and network meta-analysis of randomized controlled trials.. Dietary intervention \u2026",
+      "Primary Care-Linked Lifestyle Interventions for Type 2 Diabetes Mellitus Remission and Glucose-Lowering Medication Deintensification: A Systematic Review.. Type 2 diabetes mellitus (T2DM) is a common \u2026",
+      "The Effectiveness of Diabetes Prevention Programs Delivered in Primary Care for Individuals With Prediabetes or at Risk of Developing Type 2 Diabetes: A Systematic Review and Meta-analysis.. Prediabet\u2026",
+      ". Lifestyle interventions are a fundamental component of type 2 diabetes mellitus management; however, evidence from real-world clinical settings regarding multicomponent interventions that simultaneo\u2026"
+    ],
+    "ground_truth": "Weight loss of 5-7% body weight and at least 150 minutes per week of moderate physical activity are recommended to prevent type 2 diabetes.",
+    "confidence": 0.7966,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the recommended LDL cholesterol target for diabetic patients with cardiovascular disease?",
+    "answer": "For people with diabetes and established atherosclerotic cardiovascular disease (ASCVD), the recommended LDL cholesterol target is **<55 mg/dL** (<1.4 mmol/L) [SOURCE 5].\n\nThis recommendation is supported by the following clinical guidance:\n*   **Therapy Intensity:** High-intensity statin therapy is recommended for all people with diabetes and ASCVD [SOURCE 4].\n*   **Reduction Goal:** The therapy aims to achieve an LDL cholesterol reduction of **\u226550%** from baseline [SOURCE 5].\n*   **Specific Target:** The specific LDL cholesterol goal for this population is **<55 mg/dL** [SOURCE 5].\n\nNote: For people with diabetes aged 40\u201375 years at higher cardiovascular risk but without established ASCVD (specifically those with multiple ASCVD risk factors and LDL cholesterol \u226570 mg/dL), the target is <70 mg/dL [SOURCE 2]. However, for those with established cardiovascular disease, the stricter target of <55 mg/dL applies [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "statins (102), showed a 21% reduction in\nmajor cardiovascular events in people with\ndiabetes for every 39 mg/dL (1 mmol/L) of\nLDL cholesterol lowering, irrespective of\nbaseline LDL cholesterol or indi\u2026",
+      "ASCVD risk factors, it is recommended\nto use high-intensity statin therapy\nto reduce LDL cholesterol by $50%\nof baseline and to target an LDL\ncholesterol goal of <70 mg/dL\n(<1.8 mmol/L). A\n10.21 For p\u2026",
+      "of lowering LDL cholesterol substantially below\ncurrently recommended levels in patients with\ncoronary heart disease and diabetes: the Treating\nto New Targets (TNT) study. Diabetes Care\n2006;29:1220\u20131\u2026",
+      "indicated and has been shown to be of\nbene\ufb01t in multiple large meta-analyses\nand randomized cardiovascular outcomes\ntrials (94,102,112,114,115). High-intensity\nstatin therapy is recommended for all pe\u2026",
+      "Secondary Prevention\nRecommendations\n10.26 For people of all ages with di-\nabetes and ASCVD, high-intensity\nstatin therapy should be added to\nlifestyle therapy. A\n10.27 For people with diabetes and\nAS\u2026"
+    ],
+    "ground_truth": "An LDL cholesterol of less than 70 mg/dL is recommended for diabetic patients with established cardiovascular disease.",
+    "confidence": 0.805,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "How often should HbA1c be monitored in stable type 2 diabetes?",
+    "answer": "For stable type 2 diabetes, HbA1c should be monitored at least every 6\u201312 months [SOURCE 2]. This aligns with the recommendation to measure HbA1c twice a year in people with type 2 diabetes [SOURCE 1]. More frequent monitoring (every 3 months) is recommended if values are not in the ideal target range [SOURCE 2].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "53\nManaging diabetes\nmonitoring glycaemic control in \ndiabetes. An advantage of using \nHbA1c is that the patient does not \nneed to be in a fasting state. Ideally \nit should be measured twice a year \ni\u2026",
+      "ICMR Guidelines for Management of Type 2 Diabetes 2018\n14\nSECTION 5  MONITORING AND FOLLOW UP OF PEOPLE WITH DIABETES \n5.1 How to Monitor and Follow up People with Diabetes?\nz\nz\nBlood glucose - FPG an\u2026",
+      "creased rates of type 2 diabetes (497).\nPeople\nwith\nschizophrenia and\nother\nthought disorders who are prescribed anti-\npsychotics should be monitored for predia-\nbetes and type 2 diabetes because of t\u2026",
+      "in people with type 1 diabetes with duration of $5 years and in all people with\ntype 2 diabetes regardless of treatment. B\n11.1b In people with established chronic kidney disease (CKD), urinary albu-\n\u2026",
+      "2.5  \t Consider triple oral therapy or initiation of insulin in patients not at target with \ndual therapy.\n2.6  \t Most patients with type 2 diabetes should aim to keep their HbA1c below 7%. \nHowever, \u2026"
+    ],
+    "ground_truth": "HbA1c should be measured every 3 months initially and every 6 months once stable glycaemic targets are achieved.",
+    "confidence": 0.7906,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is diabetic ketoacidosis (DKA)?",
+    "answer": "\ud83d\udea8 EMERGENCY ALERT: This query describes symptoms that may require immediate medical attention. Please call emergency services (112 / 108 in India) or go to the nearest emergency department immediately. Do not rely on this system in an emergency.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Evaluation of electronic order set implementation in patients with diabetic ketoacidosis: a retrospective cohort study.. Diabetic ketoacidosis (DKA) is a life-threatening complication of diabetes requ\u2026",
+      "Impact of Early Subcutaneous Basal Insulin With Intravenous Insulin Infusion for Diabetic Ketoacidosis and Glycaemic Outcomes: A Systematic Review and Meta-Analysis.. Diabetic ketoacidosis (DKA) is a \u2026",
+      "Real-World Burden of Diabetic Ketoacidosis in Type 1 Diabetes in the French SFDT1 Cohort: The SFDT1-DKA Study.. Diabetic ketoacidosis (DKA) is a major acute complication of Type 1 diabetes (T1D). The \u2026",
+      "Periapical abscess precipitating diabetic ketoacidosis and reversible sepsis-induced cardiomyopathy: a case report.. Diabetic ketoacidosis (DKA) is a life-threatening acute complication of diabetes me\u2026",
+      "Recurrent Euglycemic Diabetic Ketoacidosis Weeks After SGLT2 Inhibitor Cessation: A Case Report.. Euglycemic diabetic ketoacidosis (EDKA) is a complication of sodium-glucose cotransporter-2 (SGLT2) in\u2026"
+    ],
+    "ground_truth": "DKA is a life-threatening complication of diabetes characterised by hyperglycaemia, ketosis, and metabolic acidosis, most common in type 1 diabetes.",
+    "confidence": 0.779,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What are GLP-1 receptor agonists used for in diabetes?",
+    "answer": "Based on the provided evidence, GLP-1 receptor agonists (GLP-1 RAs) are used for the following purposes in diabetes:\n\n*   **Treatment of Type 2 Diabetes:** They are increasingly used for the treatment of type 2 diabetes [SOURCE 1].\n*   **Management of Type 2 Diabetes:** They are widely used for the management of type 2 diabetes mellitus [SOURCE 2].\n*   **Management in Specific Populations:** They are increasingly used to manage type 2 diabetes mellitus in liver transplant recipients [SOURCE 3].\n*   **Management in Older Adults:** They are increasingly prescribed for type 2 diabetes mellitus, particularly in the population of older adults [SOURCE 5].\n\nAdditionally, the sources note that these agents are also used for the management of obesity [SOURCE 1, SOURCE 2, SOURCE 4, SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "GLP-1 Receptor Agonists and Musculoskeletal Outcomes: A Systematic Literature Review and Meta-Analysis.. Glucagon-like peptide-1 receptor agonists (GLP-1 RAs) are increasingly used for the treatment o\u2026",
+      "Machine learning algorithms for predicting glycemic control and weight loss outcomes in GLP-1 receptor agonist users.. Glucagon-like peptide-1 receptor agonists (GLP-1 RAs) are widely used for the man\u2026",
+      "Outcomes of GLP-1 Receptor Agonist Therapy after Liver Transplantation in Patients with Type 2 Diabetes: A Real-World Cohort Study.. Glucagon-like peptide-1 receptor agonists (GLP-1 RAs) are increasin\u2026",
+      "The perioperative use of GLP-1 receptor agonists in patients undergoing hip and knee arthroplasty: a scoping review.. Glucagon-like peptide-1 receptor agonists (GLP-1As) are increasingly being used fo\u2026",
+      "GLP-1 receptor agonist therapy and skeletal muscle: A narrative review synthesizing adult evidence with implications for older adults.. Glucagon-Like peptide-1 receptor agonists (GLP-1-RAs) are increa\u2026"
+    ],
+    "ground_truth": "GLP-1 receptor agonists lower blood glucose, promote weight loss, and reduce cardiovascular risk in type 2 diabetes.",
+    "confidence": 0.7438,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What screening is recommended for diabetic nephropathy?",
+    "answer": "The provided evidence does not clearly address this question.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "genetic disorders or polyglandular auto-\nimmune syndromes (38). Given the high\nprevalence, nonspeci\ufb01c symptoms, and in-\nsidious onset of primary hypothyroidism,\nroutine screening for thyroid dysfuncti\u2026",
+      "ICMR Guidelines for Management of Type 2 Diabetes 2018\n7\nSECTION 2   \t\nSCREENING FOR TYPE 2 DIABETES\nType 2 diabetes occurs a much earlier age (at least a decade earlier) in Indians \ncompared to other\u2026",
+      "abetes and diabetic kidney disease, \ufb01-\nnerenone is recommended to reduce\nthe risk of hospitalization for heart\nfailure. A\n10.45e In individuals with diabetes,\nguideline-directed medical therapy for\nmy\u2026",
+      "Implementing Diabetic Eye Care in Rural Primary Care Through Teleophthalmology and Pop-Up Clinics: Mixed Methods Study.. Diabetic retinopathy is the leading cause of blindness in US adults. Fewer than\u2026",
+      "Grading-labour cost analysis of AI-assisted versus human-only diabetic retinopathy screening in two Danish healthcare settings.. Diabetic retinopathy (DR) screening is essential to prevent vision loss\u2026"
+    ],
+    "ground_truth": "Annual screening for albuminuria and eGFR is recommended for all patients with diabetes to detect diabetic nephropathy early.",
+    "confidence": 0.765,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "At what HbA1c level should insulin therapy be initiated in type 2 diabetes?",
+    "answer": "Based on the provided evidence, insulin therapy for type 2 diabetes should be considered or initiated under the following conditions:\n\n*   **Severe Hyperglycemia:** Insulin should be considered first-line treatment in patients with severe hyperglycemia, defined as an **HbA1c greater than 10%** (or blood glucose 300 mg/dL or higher) [SOURCE 2].\n*   **Symptoms or Catabolism:** Insulin should also be considered in patients presenting with symptoms of hyperglycemia or catabolism, regardless of the specific HbA1c threshold mentioned above [SOURCE 2].\n*   **Failure of Dual Therapy:** For patients who are not at their treatment target while on dual therapy, clinicians should consider initiating insulin (or triple oral therapy) [SOURCE 1].\n\nThe evidence does not specify a single universal HbA1c cutoff for all patients, noting that treatment targets need to be individualized [SOURCE 1] and that pharmacologic therapy should be guided by person-centered factors [SOURCE 3].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "2.5  \t Consider triple oral therapy or initiation of insulin in patients not at target with \ndual therapy.\n2.6  \t Most patients with type 2 diabetes should aim to keep their HbA1c below 7%. \nHowever, \u2026",
+      "Type 2 Diabetes: Outpatient Insulin Management.. More than 29 million adults in the United States are diagnosed with type 2 diabetes, and insulin therapy is estimated to be needed in up to 15% of case\u2026",
+      "type 2 diabetes. Pharmacologic therapy\nshould be guided by person-centered\ntreatment factors, including comorbidities\nand treatment goals and preferences.\nPharmacotherapy should be started at the\ntime\u2026",
+      "Insulin Therapy\nMany adults with type 2 diabetes even-\ntually require and bene\ufb01t from insulin\ntherapy (Fig. 9.4). See the section INSULIN\nADMINISTRATION TECHNIQUE, above, for guid-\nance on how to admi\u2026",
+      ". Even with the most advanced insulin preparations and delivery systems currently available, it is challenging for many people with type 1 diabetes (T1D) to achieve target levels of glycemic managemen\u2026"
+    ],
+    "ground_truth": "Insulin therapy should be considered when HbA1c remains above 10% despite oral therapy or when hyperglycaemic symptoms are present.",
+    "confidence": 0.765,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the Diabetes Prevention Program (DPP)?",
+    "answer": "Based on the provided evidence, the Diabetes Prevention Program (DPP) is defined by the following characteristics:\n\n*   **Intervention Type:** It is a lifestyle/behavioral intervention that utilizes an individualized reduced-calorie meal plan [SOURCE 3].\n*   **Clinical Efficacy:** The DPP trial demonstrates that this intervention is highly effective in preventing or delaying type 2 diabetes and improving other cardiovascular risk factors [SOURCE 3].\n*   **Delivery Settings:** The program content can be delivered in groups within community or primary care settings [SOURCE 4].\n*   **Cost and Outcomes:** Group delivery in these settings has demonstrated the potential to reduce overall program costs while still achieving weight loss and diabetes risk reduction [SOURCE 4].\n*   **National Implementation:** The Centers for Disease Control and Prevention (CDC) developed the National Diabetes Prevention Program based on this model [SOURCE 4].\n*   **Population Applicability:** The program is noted to be effective among Hispanic populations, though its acceptability among older Hispanic adults in community-based settings remains an area of ongoing study [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "or metformin on diabetes development and\nmicrovascular complications over 15-year follow-\nup: the Diabetes Prevention Program Outcomes\nStudy. Lancet Diabetes Endocrinol 2015;3:866\u2013\n875\n11. Diabetes Pr\u2026",
+      "Prevention Program Research Group. Exploring\nresidual risk for diabetes and microvascular\ndisease in the Diabetes Prevention Program\nOutcomes Study (DPPOS). Diabet Med 2017;34:\n1747\u20131755\n99. Nathan DM\u2026",
+      "als, including the Diabetes Prevention\nProgram (DPP) trial (4), the Finnish Diabe-\ntes Prevention Study (DPS) (5), and the\nDa Qing Diabetes Prevention Study (Da\nQing study) (6), demonstrate that life-\u2026",
+      "prevention with coverage by third-party\npayers ensued (34\u201338). Group delivery of\nDPP content in community or primary\ncare settings has demonstrated the po-\ntential to reduce overall program costs\nwhil\u2026",
+      "BRinging the Diabetes Prevention Program to GEriatric Populations in Spanish (BRIDGE-S): Assessing Acceptability Among Hispanic/Latino Adults in an Older Adult Center.. Although the CDC's Diabetes Pre\u2026"
+    ],
+    "ground_truth": "The DPP was a landmark RCT showing intensive lifestyle intervention reduced progression to type 2 diabetes by 58% in high-risk individuals.",
+    "confidence": 0.7826,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What foot care is recommended for diabetic patients?",
+    "answer": "Based on the provided evidence, the following foot care recommendations and considerations are noted:\n\n*   **Screening:** Diabetic foot screening is a recommended component of care [SOURCE 2].\n*   **Management of Neuropathy:** If a patient presents with symptoms and signs of numbness and loss of sensation, specific guidelines for foot care should be followed to protect the foot from ulceration [SOURCE 2].\n*   **Prevention and Education:** Diabetic foot is considered a serious and largely preventable complication of diabetes, highlighting the importance of knowledge, attitudes, and practices regarding foot care [SOURCE 4].\n*   **Professional Training:** Specific training courses for foot and wound care have been associated with a declining rate of foot ulcers and amputations [SOURCE 3].\n*   **Holistic Care:** For hospitalised patients with diabetic foot ulcers, care should extend beyond wound management alone to include humanistic care, which is considered a core component of person-centred care [SOURCE 1] [SOURCE 5].\n\nThe provided evidence does not clearly address specific daily hygiene routines, footwear recommendations, or detailed wound dressing protocols beyond the general principles listed above.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      ". These findings suggest that humanistic care is a core component of care for hospitalised patients with diabetic foot ulcers rather than an adjunct to wound treatment, and should be more systematical\u2026",
+      "like opioids (tramadol) is also advised\nz\nz\nIf patient has symptoms and signs of numbness and loss of sensation, follow \nthe guideline given under foot care to protect the foot from ulceration\nz\nz\nSex\u2026",
+      "chronic diabetic complications. A specific training course for foot and wound care has resulted in a \ndeclining rate of foot ulcers and amputations. Capacity-building of care teams in providing standa\u2026",
+      "Knowledge, attitudes, and practices regarding diabetic foot care among patients with diabetes in China: a systematic review and meta-analysis.. Diabetic foot is a serious and largely preventable compl\u2026",
+      "Humanistic Care Needs of Hospitalised Patients With Diabetic Foot Ulcers: A Qualitative Descriptive Study From the Nurse-Patient Perspective.. Diabetic foot ulcer care extends beyond wound management \u2026"
+    ],
+    "ground_truth": "Annual comprehensive foot examination including assessment of sensation, pulses, and skin integrity is recommended for all diabetic patients.",
+    "confidence": 0.779,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the target BMI for overweight patients with type 2 diabetes?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile the sources discuss weight management in type 2 diabetes, they do not specify a target BMI for overweight patients. The available evidence notes the following:\n*   Type 2 diabetes is often associated with obesity [SOURCE 1].\n*   Metabolic surgery is recommended for individuals with type 2 diabetes and a BMI \u226530 kg/m\u00b2 (or \u226527.5 kg/m\u00b2 for Asian American individuals) [SOURCE 4].\n*   Modest weight loss improves cardiovascular risk factors in overweight and obese individuals with type 2 diabetes [SOURCE 5].\n*   The high prevalence of overweight or obesity in type 2 diabetes is associated with impaired quality of life and increased risk of complications [SOURCE 2].\n\nHowever, no specific target BMI value for \"overweight\" patients is defined in the provided texts.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "with type 1 or type 2 diabetes (110,111).\nType 2 Diabetes\nType 2 diabetes is often associated with\nobesity. Recommended weight gain dur-\ning pregnancy for people with overweight\nis 15\u201325 lb (6.8\u201311.3 \u2026",
+      ". The high prevalence of overweight or obesity in patients with type 2 diabetes (T2DM) is strongly associated with impaired quality of life and an increased risk of long-term complications. Poor glyce\u2026",
+      "interventions for the prevention \nof overweight and obesity is \nlimited, but much is known about \npromotion of healthy diet and \nphysical activity, which are key \nto prevention and attaining the \nglob\u2026",
+      "jejunum.\nMetabolic surgery has been demon-\nstrated to have bene\ufb01cial effects on type 2\ndiabetes irrespective of the presurgical\nBMI (107). The American Society for Met-\nabolic and Bariatric Surgery is\u2026",
+      "541\u2013551\n115. Wing RR, Lang W, Wadden TA, et al.\nBene\ufb01ts of modest weight loss in improving\ncardiovascular risk factors in overweight and\nobese individuals with type 2 diabetes. Diabetes\nCare 2011;34:1\u2026"
+    ],
+    "ground_truth": "Weight loss of 5-10% is beneficial; bariatric surgery may be considered for BMI \u2265 35 with inadequately controlled diabetes.",
+    "confidence": 0.8286,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is hyperosmolar hyperglycaemic state (HHS)?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile the sources mention Hyperosmolar Hyperglycaemic State (HHS) as a hyperglycaemic emergency [SOURCE 1] and note that its presentation can range from euglycemia to mild hyperglycemia [SOURCE 3], they do not provide a specific definition or detailed pathophysiological description of what HHS is.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "ICMR Guidelines for Management of Type 2 Diabetes 2018\n49\n8.1.2 Hyperglycaemic emergencies (Diabetic Ketoacidosis- DKA or \nHyperosmolar Hyperglycaemic State- HHS): \nUsually such emergencies occur in s\u2026",
+      "computerized protocols that allow for\nprede\ufb01ned adjustments in the insulin in-\nfusion rate based on glycemic \ufb02uctua-\ntions and immediate past and current\ninsulin infusion rates (52). For diabetic\nketo\u2026",
+      "comes and lower rates of perioperative\ncomplications compared with the re-\nactive, correction-only short- or rapid-\nacting insulin coverage alone with no\nbasal insulin dosing (63,134,135).\nDiabetic Ke\u2026",
+      "106. Milligan PE, Bocox MC, Pratt E, Hoehner\nCM, Krettek JE, Dunagan WC. Multifaceted approach\nto reducing occurrence of severe hypoglycemia in a\nlarge healthcare system. Am J Health Syst Pharm\n2015;7\u2026",
+      "811\n83. Ackermann RT, Cheng YJ,Williamson DF, Gregg\nEW. Identifying adults at high risk for diabetes and\ncardiovascular\ndisease\nusing\nhemoglobin\nA1c\nNational Health and Nutrition Examination Survey\n20\u2026"
+    ],
+    "ground_truth": "HHS is a serious complication of type 2 diabetes with extreme hyperglycaemia, severe dehydration, and hyperosmolality without significant ketosis.",
+    "confidence": 0.8002,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "Which diabetes medication has shown cardiovascular mortality benefit?",
+    "answer": "Based on the provided evidence, the following diabetes medications have shown cardiovascular mortality benefits:\n\n*   **SGLT2 inhibitors (specifically empagliflozin):**\n    *   A meta-analysis indicated that SGLT2 inhibitors reduce the risk of cardiovascular mortality in people with and without cardiovascular disease [SOURCE 4].\n    *   Empagliflozin, an SGLT2 inhibitor, performs a reduction in cardiovascular mortality in type 2 diabetes mellitus (T2DM) patients compared to dapagliflozin [SOURCE 2].\n\n*   **GLP-1 receptor agonists (GLP-1RA):**\n    *   Large real-world studies and randomized controlled trials have shown that GLP-1RA may reduce cardiovascular events and mortality [SOURCE 1].\n\nThe provided evidence does not clearly address whether other specific diabetes medications (such as metformin or insulin) have shown cardiovascular mortality benefits.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      ". In recent years, several large real-world studies and randomized controlled trials have shown that GLP-1RA may improve disease activity and reduce cardiovascular events and mortality in osteoarthrit\u2026",
+      "Cost-utility analysis of empagliflozin compared with dapagliflozin in patients with type 2 diabetes in China.. Empagliflozin, a sodium-glucose cotransporter 2 inhibitor, performs a reduction in the al\u2026",
+      "The effect of CoQ10 supplementation on cardiovascular risk factors in patients with prediabetes and type 2 diabetes mellitus: a grade-assessed systematic review and dose-response meta-analysis.. Previ\u2026",
+      "that rates of heart failure hospitalization\nsigni\ufb01cantly decreased with use of\nsodium\u2013glucose cotransporter 2 (SGLT2)\ninhibitors (11\u201314).\nA recent meta-analysis indicated that\nSGLT2 inhibitors reduce \u2026",
+      "Beyond Insulin: Why Type 1 Diabetes Mellitus Needs More?. A century after the discovery of insulin, people with type 1 diabetes continue to experience elevated cardiovascular risk and associated morta\u2026"
+    ],
+    "ground_truth": "SGLT2 inhibitors (empagliflozin, canagliflozin) and GLP-1 agonists (liraglutide, semaglutide) have shown cardiovascular mortality benefits in RCTs.",
+    "confidence": 0.7966,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the recommended eye examination schedule for diabetic patients?",
+    "answer": "Based on the provided evidence, the recommended eye examination schedules vary by patient population and clinical context:\n\n**General Diabetic Patients**\n*   **Baseline:** An immediate baseline eye examination is mandatory for all diabetic patients, including recording of visual acuity and retinal examination by ophthalmoscopy [SOURCE 2].\n*   **Frequency:** Patients should undergo periodic, comprehensive eye examinations [SOURCE 3].\n*   **Documentation:** Retinal photography must be obtained whenever possible [SOURCE 2].\n\n**Pregnant Individuals with Diabetes**\n*   **Initial:** Dilated eye examinations should ideally occur before pregnancy or during the first trimester [SOURCE 1].\n*   **Follow-up:** Monitoring should occur every trimester and for 1 year postpartum, with frequency adjusted based on the degree of retinopathy and recommendations from the eye care professional [SOURCE 1].\n\n**Youth with Type 1 Diabetes**\n*   **Initial:** An initial dilated and comprehensive eye examination is recommended once the patient has had type 1 diabetes for 3\u20135 years, provided they are aged 11 years or older or have started puberty (whichever is earlier) [SOURCE 4].\n*   **Follow-up:** Repeat dilated and comprehensive eye examinations are recommended every 2 years [SOURCE 4].\n*   **Exceptions:** Less frequent examinations, every 4 years, may be acceptable on the advice of the eye care professional [SOURCE 4].\n\n**Clinical Context**\n*   Timely laser photocoagulation and good blood glucose control can prevent or delay irreversible vision loss [SOURCE 3].\n*   Diabetic retinopathy is a leading cause of blindness, and screening is critical for prevention [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "nant should be counseled on the risk\nof development and/or progression\nof diabetic retinopathy. Dilated eye\nexaminations should occur ideally\nbefore pregnancy or in the \ufb01rst tri-\nmester, and then preg\u2026",
+      "and about the need for an immediate baseline eye examination and blood glucose \ncontrol. Recording of visual acuity and examination of the retina by ophthalmoscopy \nis mandatory in all diabetic patien\u2026",
+      "Current treatment of diabetes does \nnot prevent all complications, but \nthe progress of complications can \nbe slowed by early interventions \n(13). People with diabetes should \nhave periodic, comprehen\u2026",
+      "14.44 An initial dilated and compre-\nhensive eye examination is recom-\nmended once youth have had type 1\ndiabetes for 3\u20135 years, provided they\nare aged $11 years or puberty has\nstarted, whichever is e\u2026",
+      "Implementing Diabetic Eye Care in Rural Primary Care Through Teleophthalmology and Pop-Up Clinics: Mixed Methods Study.. Diabetic retinopathy is the leading cause of blindness in US adults. Fewer than\u2026"
+    ],
+    "ground_truth": "Dilated eye examination is recommended at diagnosis for type 2 diabetes and annually thereafter to screen for diabetic retinopathy.",
+    "confidence": 0.7826,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the UKPDS study and its significance?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile the sources reference the **UK Prospective Diabetes Study (UKPDS)**, they do not provide a definition of the study or a detailed explanation of its general significance. The available text only lists specific citations and applications:\n*   [SOURCE 1] cites \"UKPDS 33\" regarding intensive blood-glucose control with sulphonylureas or insulin compared with conventional treatment and the risk of complications in patients with type 2 diabetes.\n*   [SOURCE 2] mentions that \"UKPDS 82 risk equations\" were used to estimate transition probabilities in a cost-effectiveness analysis.\n\nNo further details regarding the study's design, primary objectives, or broader clinical significance are contained in the provided evidence.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "4. UK Prospective Diabetes Study (UKPDS) Group.\nIntensive blood-glucose control with sulphonylureas\nor insulin compared with conventional treatment\nand risk of complications in patients with type 2\ndi\u2026",
+      ". Transition probabilities were estimated using the UKPDS 82 risk equations, and clinical efficacy inputs were obtained from the FIGHTING-2 study. Cost and utility parameters were derived from Chinese\u2026"
+    ],
+    "ground_truth": "The UKPDS showed that intensive blood glucose control in newly diagnosed type 2 diabetes significantly reduces microvascular complications.",
+    "confidence": 0.761,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What dietary pattern is recommended for type 2 diabetes management?",
+    "answer": "Based on the provided evidence, there is no single universally defined \"optimal\" dietary pattern, but several specific patterns are highlighted as promising or under evaluation for Type 2 Diabetes (T2DM) management:\n\n*   **Mediterranean Diet:** This dietary pattern is described as a promising strategy for the prevention and management of T2DM, with established clinical evidence linking its biological pathways to disease management [SOURCE 1].\n*   **DASH4D:** The Dietary Approaches to Stop Hypertension for Diabetes (DASH4D) pattern is the subject of a randomized controlled trial designed to evaluate its effects on blood pressure in adults with T2DM [SOURCE 3].\n*   **General Dietary Interventions:** Dietary intervention is considered a cornerstone of management for overweight or obese adults with T2DM, although the optimal specific strategy remains uncertain according to a systematic review of randomized controlled trials [SOURCE 2].\n*   **Principle of Application:** Clinical guidelines emphasize that people eat food, not isolated nutrients, and that macronutrients are not interchangeable, meaning recommendations must be applied to actual food intake [SOURCE 4].\n\nThe provided evidence does not clearly address a single mandatory recommended pattern, but rather highlights the Mediterranean diet as a promising strategy and notes that the optimal strategy for overweight/obese patients remains uncertain [SOURCE 1] [SOURCE 2].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Mediterranean Dietary Pattern in Type 2 Diabetes Management: Pathways and Clinical Evidence.. The Mediterranean diet (MedDiet) has emerged as a promising dietary strategy for the prevention and manage\u2026",
+      "Comparative efficacy of dietary interventions for overweight or obese adults with type 2 diabetes: a systematic review and network meta-analysis of randomized controlled trials.. Dietary intervention \u2026",
+      ". This report details the rationale and design of the Dietary Approaches to Stop Hypertension for Diabetes (DASH4D) trial, a randomized, controlled, crossover feeding study designed to evaluate the ef\u2026",
+      "(KDIGO) guidelines (95), the European As-\nsociation for the Study of Diabetes/ADA\ntype 1 consensus report (96) and type 2\nconsensus report (97), and the Dietary\nGuidelines for Americans, 2020\u20132025 (98\u2026",
+      "Differential associations of diet with hepatic and muscle insulin resistance: insights from an dietary pattern analysis in the PERSON study.. The relationship between dietary patterns (DPs) and type 2\u2026"
+    ],
+    "ground_truth": "Mediterranean, DASH, and low-carbohydrate dietary patterns are all effective for glycaemic control in type 2 diabetes.",
+    "confidence": 0.787,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the role of self-monitoring blood glucose (SMBG) in type 2 diabetes?",
+    "answer": "Based on the provided evidence, the role of self-monitoring of blood glucose (SMBG) in type 2 diabetes is as follows:\n\n*   **Self-Management and Safety:** SMBG is a crucial component of self-management for patients with type 2 diabetes, enabling individuals to track blood glucose levels and promptly identify episodes of hypoglycemia or hyperglycemia [SOURCE 2].\n*   **Clinical Indications:** SMBG is indicated for:\n    *   All people with diabetes on insulin [SOURCE 4].\n    *   Patients with brittle diabetes [SOURCE 4].\n    *   Those prone to ketosis or recurrent hypoglycemia [SOURCE 4].\n    *   Patients with hypoglycemia unawareness [SOURCE 4].\n    *   It is considered ideal for every patient to achieve better control of diabetes [SOURCE 4].\n*   **Glycemic Control:** Structured self-monitoring of blood glucose significantly reduces A1C levels in poorly controlled patients [SOURCE 1].\n*   **Context of Blood Glucose Control:** While the specific role of SMBG is distinct, the broader role of blood glucose control in preventing the development and progression of complications (such as neuropathy and diabetic retinopathy) has been proven in type 2 diabetes [SOURCE 3].\n\n*Note: The provided evidence does not clearly address the specific role of SMBG in non-insulin-treated patients regarding efficacy outcomes, other than the general statement that it is ideal for every patient to achieve better control [SOURCE 4] and that structured monitoring reduces A1C in poorly controlled patients [SOURCE 1].*\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "34. Young LA, Buse JB, Weaver MA, et al.;\nMonitor Trial Group. Glucose self-monitoring in\nnon-insulin-treated patients with type 2 diabetes\nin primary care settings: a randomized trial.\nJAMA Intern Me\u2026",
+      "Cost effectiveness analysis of self-monitoring of blood glucose for patients with type 2 diabetes.. Self-monitoring of blood glucose (SMBG) is a crucial component of self-management for patients with \u2026",
+      "52\nManaging diabetes\nBLOOD GLUCOSE CONTROL\nThe role of blood glucose control \nin preventing the development \nand progression of complications \nhas been proven in both type\u202f1 \nand type\u202f2 diabetes, with\u2026",
+      "5.2 Self Monitoring of Blood Glucose (SMBG) with Glucose Monitor\nIt is indicated in the following conditions:\nz\nz\nIdeal for every patient to achieve better control of diabetes\nz\nz\nAll people with diab\u2026",
+      ". GDM is associated with an increased risk of various short- and long-term complications for both mother and child, including type 2 diabetes. Managing GDM requires a multidisciplinary approach that i\u2026"
+    ],
+    "ground_truth": "SMBG is recommended for insulin-treated patients; continuous glucose monitoring (CGM) is increasingly preferred for comprehensive glucose data.",
+    "confidence": 0.749,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "How does chronic kidney disease affect diabetes drug selection?",
+    "answer": "Based on the provided evidence, chronic kidney disease (CKD) affects diabetes drug selection in the following ways:\n\n*   **Dosing and Safety Considerations:** The selection and management of oral antidiabetic drugs in patients with type 2 diabetes and CKD require specific attention to dosing adjustments to ensure both efficacy and safety, with a focus on monitoring effects on renal function and glycemic control [SOURCE 1].\n*   **Monitoring Frequency:** Patients with diabetes and known CKD may require more frequent monitoring of laboratory values, such as serum potassium, compared to those without CKD [SOURCE 2].\n*   **Medication Initiation and Changes:** Laboratory values may need to be checked after the initiation or dose changes of diabetes medications, particularly in the context of CKD or other conditions affecting kidney function [SOURCE 2].\n*   **Prevention vs. Treatment:** The American Diabetes Association does not recommend the routine use of certain medications solely for the purpose of preventing the development of diabetic kidney disease in the absence of hypertension or albuminuria [SOURCE 3].\n*   **Guideline-Directed Therapy:** Optimizing guideline-directed therapy is a key opportunity for improving the management of patients with CKD, particularly those with diabetes, to avoid clinical inertia [SOURCE 5].\n\nThe provided evidence does not clearly address specific drug class exclusions or detailed dosing tables for individual agents in CKD stages.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Efficacy and Safety of Oral Antidiabetic Drugs in People with Diabetes and Chronic Kidney Disease: A Systematic Review.. This study is a systematic review assessing the efficacy and safety of oral ant\u2026",
+      "*At 65 years of age or older.\n+May be needed more frequently in people with diabetes with known chronic kidney disease or with changes in medications that affect kidney \nfunction and serum potassium (\u2026",
+      "betic kidney disease in the absence of\nhypertension or albuminuria. Thus, the\nAmerican Diabetes Association does not\nrecommend routine use of these medica-\ntions solely for the purpose of preven-\ntion\u2026",
+      "Translational advances in diabetic nephropathy management: integrating nanoformulation-based drug delivery systems.. The incidence of diabetes mellitus (DM) is increasing worldwide, especially for its\u2026",
+      ". Opportunities for improving the management of patients with CKD in both primary and specialty care include avoiding clinical inertia and optimizing guideline-directed therapy. Chronic kidney disease\u2026"
+    ],
+    "ground_truth": "Metformin should be dose-reduced at eGFR 30-45 and stopped below 30. SGLT2 inhibitors have reduced efficacy at low eGFR. GLP-1 agonists are generally safe.",
+    "confidence": 0.7934,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What vaccinations are recommended for people with diabetes?",
+    "answer": "Based on the provided evidence, the following vaccinations are recommended for people with diabetes:\n\n*   **Routine Vaccinations:** Clinicians should provide routinely recommended vaccinations for both children and adults with diabetes as indicated by age [SOURCE 1].\n*   **COVID-19:** COVID-19 vaccinations and boosters are recommended for everyone ages 6 months and older in the U.S. for the prevention of COVID-19 [SOURCE 2].\n*   **Hepatitis B:** The evidence notes that people with type 1 or type 2 diabetes have higher rates of hepatitis compared to the general population, implying a specific clinical consideration for Hepatitis B vaccination, though the specific recommendation text is truncated in the provided excerpt [SOURCE 2].\n\nThe provided evidence does not clearly address other specific vaccine types (e.g., influenza, pneumococcal) beyond the general directive to follow age-indicated routine schedules [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "comorbidities, and treatment burden. Dis-\ncussing and implementing an approach to\nglycemic management with the person is\na part, not the sole goal, of the clinical\nencounter.\nIMMUNIZATIONS\nRecommendat\u2026",
+      "to become severely ill with coronavirus\ndisease 2019 (COVID-19) (see\nDIABETES\nAND\nCOVID-19 section below). COVID-19\nvaccinations and boosters are recom-\nmended for everyone ages 6 months\nand older in \u2026",
+      "People with HIV are at higher risk for de-\nveloping prediabetes and diabetes on\nantiretroviral (ARV) therapies; a screen-\ning protocol is therefore recommended\n(103). The A1C test may underestimate\ngl\u2026",
+      "tion of two drugs or a single-pill com-\nbination of drugs demonstrated to\nreduce cardiovascular events in people\nwith diabetes. A\n10.9 Treatment for hypertension should\ninclude drug classes demonstrat\u2026",
+      "ing on CKD and cardiovascular out-\ncomes in people with CKD are ongoing\nand will be reported in the next few\nyears.\nFor people with type 2 diabetes and\nCKD, the selection of speci\ufb01c agents may\ndepend \u2026"
+    ],
+    "ground_truth": "Annual influenza, pneumococcal, hepatitis B, and COVID-19 vaccines are recommended for adults with diabetes due to increased infection risk.",
+    "confidence": 0.805,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is gestational diabetes mellitus (GDM)?",
+    "answer": "Based on the provided evidence, Gestational Diabetes Mellitus (GDM) is defined and characterized as follows:\n\n*   **Definition:** GDM is defined as glucose intolerance of any severity that is detected for the first time during pregnancy [SOURCE 2]. It is traditionally described as a disorder of hyperglycemia with first onset or recognition during pregnancy [SOURCE 4].\n*   **Glucose Levels:** The condition is present when blood glucose values are above normal but remain below the levels diagnostic of diabetes [SOURCE 3].\n*   **Nature of Condition:** It is a temporary condition that occurs in pregnancy [SOURCE 3]. It is described as a widespread, common, complicated, and costly condition [SOURCE 1, SOURCE 4, SOURCE 5].\n*   **Risks and Complications:**\n    *   **Maternal:** Women with GDM are at increased risk of complications during pregnancy and delivery [SOURCE 3]. The condition is associated with maternal morbidity [SOURCE 1, SOURCE 5].\n    *   **Neonatal:** Infants of women with GDM are also at increased risk of complications during pregnancy and delivery [SOURCE 3]. The condition is associated with neonatal morbidity [SOURCE 5].\n    *   **Long-term:** GDM carries a long-term risk of developing type 2 diabetes [SOURCE 3].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Association of CDKAL1 rs7754840 with gestational diabetes mellitus: a systematic review and meta-analysis.. Gestational diabetes mellitus (GDM) is a widespread condition during pregnancy with substant\u2026",
+      "9.2 Gestational Diabetes Mellitus (GDM)\nGlucose intolerance of any severity detected for the first time during pregnancy is \ntermed as gestational diabetes mellitus (GDM).\u2026",
+      "12\nBackground\nGestational diabetes (GDM) is a \ntemporary condition that occurs \nin pregnancy and carries long-\nterm risk of type\u202f2 diabetes (2). \nThe condition is present when \nblood glucose values ar\u2026",
+      "Gestational diabetes mellitus and life-course health.. Gestational diabetes mellitus (GDM), traditionally defined as a disorder of hyperglycaemia with first onset or recognition during pregnancy, is a\u2026",
+      "Early pregnancy body mass index outweighs gestational weight gain in predicting gestational diabetes mellitus: A single-center experience from T\u00fcrkiye.. Gestational diabetes mellitus (GDM) is a common\u2026"
+    ],
+    "ground_truth": "GDM is glucose intolerance first diagnosed during pregnancy, associated with increased risk of macrosomia, perinatal complications, and future type 2 diabetes.",
+    "confidence": 0.7838,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the recommended screening for GDM?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile the sources mention screening for Cystic Fibrosis-Related Diabetes (CFRD) using an Oral Glucose Tolerance Test (OGTT) [SOURCE 1] and discuss postpartum screening for glucose intolerance in women with a history of Gestational Diabetes (GDM) [SOURCE 3, SOURCE 4], they do not specify the recommended screening protocol for diagnosing GDM during pregnancy.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "to CFRD in those with abnormal glucose\ntolerance, no bene\ufb01t has been established\nwith respect to weight, height, BMI, or\nlung function. OGTT is the recommended\nscreening test for CFRD. Not unexpectedl\u2026",
+      "genetic disorders or polyglandular auto-\nimmune syndromes (38). Given the high\nprevalence, nonspeci\ufb01c symptoms, and in-\nsidious onset of primary hypothyroidism,\nroutine screening for thyroid dysfuncti\u2026",
+      "Long-term effectiveness of a reminder system for postpartum glucose intolerance screening in gestational diabetes.. Women with a history of gestational diabetes (GDM) have an increased risk of develop\u2026",
+      ". Continuous glucose monitoring (CGM) is not currently a tool for screening for T2D among pregnant or postpartum people. Our objective was to assess CGM data during the postpartum OGTT. This was a sec\u2026",
+      "Optimizing diabetes care in pregnancy: A systematic review of glycemic targets, treatment initiation, and glucose-lowering pharmacological management for T1DM, T2DM, and GDM.\u2026"
+    ],
+    "ground_truth": "Universal screening at 24-28 weeks gestation using a 75g oral glucose tolerance test (OGTT) is recommended.",
+    "confidence": 0.7358,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the mechanism of action of SGLT2 inhibitors?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile [SOURCE 1] mentions that SGLT2 inhibitors have a \"unique renal mechanism of action\" and summarizes their \"metabolic mechanisms,\" it does not explicitly describe the specific physiological or biochemical steps of that mechanism (e.g., inhibition of sodium-glucose cotransporter-2 in the proximal tubule leading to glycosuria). The other sources focus on efficacy, safety, specific outcomes (heart failure, kidney disease, mineral homeostasis), or patient populations (elderly) without detailing the underlying mechanism of action.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      ". In recent years, sodium-glucose cotransporter-2 (SGLT2) inhibitors have emerged as a cornerstone of modern treatment due to their unique renal mechanism of action. This review summarizes the metabol\u2026",
+      "Efficacy and Safety of SGLT2 Inhibitors and Sotagliflozin in Heart Failure: A Systematic Review and Meta-Analysis of 59 Randomized Controlled Trials.\u2026",
+      ". This review summarizes more recent data on the role of SGLT2is in the primary prevention of kidney disease in persons living with diabetes\u2026",
+      "Efficacy and safety of SGLT2 inhibitors in elderly patients with type 2 diabetes.. To evaluate the effectiveness and safety of sodium-glucose co-transporter 2 (SGLT2) inhibitors in elderly patients wi\u2026",
+      "Effect of dapagliflozin on mineral homeostasis in patients with type 2 diabetes: A real-world retrospective cohort study.. Sodium-glucose cotransporter 2 (SGLT2) inhibitors provide important glycemic,\u2026"
+    ],
+    "ground_truth": "SGLT2 inhibitors block sodium-glucose co-transporter 2 in the proximal renal tubule, increasing urinary glucose excretion and lowering blood glucose.",
+    "confidence": 0.6658,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What are the side effects of SGLT2 inhibitors?",
+    "answer": "Based on the provided evidence, the following side effects and safety concerns associated with SGLT2 inhibitors are identified:\n\n*   **Euglycemic Diabetic Ketoacidosis (EDKA):** This is described as a life-threatening metabolic emergency [SOURCE 5]. The incidence and recognition of EDKA have increased, particularly with the use of SGLT2 inhibitors [SOURCE 5]. Concerns regarding this side effect often lead to the avoidance of SGLT2 inhibitor prescription, despite their cardio-renal benefits [SOURCE 2].\n*   **Secondary Polycythemia:** A systematic review and meta-analysis examined the hematologic effects of SGLT2 inhibitors, specifically focusing on secondary polycythemia in patients with type 2 diabetes [SOURCE 1].\n\nThe provided evidence does not clearly address other common side effects (such as genital mycotic infections or volume depletion) beyond those listed above.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "SGLT2 inhibitors and secondary polycythemia: a systematic review and meta-analysis of hematologic effects in patients with type 2 diabetes.. Sodium-glucose cotransporter 2 (SGLT2) inhibitors are widel\u2026",
+      ". Despite the multiple cardio-renal benefits of sodium-glucose co-transporter 2 (SGLT2) inhibitors, their prescription is often avoided due to concerns regarding side effects. This review aims to disc\u2026",
+      "the effects of efpeglenatide did not vary\nby use of SGLT2 inhibitors, suggesting that\nthe bene\ufb01cial effects of the GLP-1 recep-\ntor agonist were independent of those\nprovided by SGLT2 inhibitor therap\u2026",
+      ". The observed improvement in the elastic modulus of erythrocytes following dapagliflozin therapy in patients with type 1 diabetes suggests that SGLT2 inhibitors could provide additional benefits for \u2026",
+      ". From the possible side effects, EDKA is a life-threatening metabolic emergency whose incidence and recognition has increased, in particular with the use of SGLT2 inhibitors\u2026"
+    ],
+    "ground_truth": "Common side effects include genital mycotic infections, urinary tract infections, and rare risk of diabetic ketoacidosis and Fournier's gangrene.",
+    "confidence": 0.771,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is prediabetes and how is it defined?",
+    "answer": "Based on the provided evidence, prediabetes is defined and characterized as follows:\n\n*   **Definition and Status:** Prediabetes is a condition where blood glucose levels are elevated but do not meet the diagnostic criteria for diabetes [SOURCE 3]. It is described as a transitional stage from normal glucose metabolism to diabetes [SOURCE 1] and an intermediate state between normoglycemia and diabetes [SOURCE 2].\n*   **Clinical Significance:** It is a precursor to type 2 diabetes mellitus (T2DM) [SOURCE 5] and a significant risk factor for progression to diabetes, cardiovascular disease, and other cardiometabolic outcomes [SOURCE 2].\n*   **Symptoms:** The condition often presents without symptoms [SOURCE 3].\n*   **Prevalence:** As of 2024, approximately 1.12 billion people globally were in the prediabetes stage [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Efficacy and safety of anti-prediabetic drugs in patients with prediabetes: a Bayesian network meta-analysis.. Prediabetes refers to the transitional stage from normal glucose metabolism to diabetes. \u2026",
+      "(39\u201347 mmol/mol) (Table 2.2). As predi-\nabetes is an intermediate state between\nnormoglycemia and diabetes, it is clearly\na signi\ufb01cant risk factor for progression to\ndiabetes as well as cardiovascular\u2026",
+      "Food as both comfort and risk: perspectives on healthy eating among Swedish women with prediabetes.. Prediabetes is a condition in which blood glucose levels are elevated but not high enough to meet t\u2026",
+      "51\u201358\n8. Echouffo-Tcheugui JB, Selvin E. Prediabetes\nand what it means: the epidemiological evidence.\nAnnu Rev Public Health 2021;42:59\u201377\n9. Chadha C, Pittas AG, Lary CW, et al.; D2d\nResearch Group. \u2026",
+      "The Effectiveness of Diabetes Prevention Programs Delivered in Primary Care for Individuals With Prediabetes or at Risk of Developing Type 2 Diabetes: A Systematic Review and Meta-analysis.. Prediabet\u2026"
+    ],
+    "ground_truth": "Prediabetes is defined as impaired fasting glucose (100-125 mg/dL) or impaired glucose tolerance (2h OGTT 140-199 mg/dL) or HbA1c 5.7-6.4%.",
+    "confidence": 0.8078,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What physical activity is recommended for type 2 diabetes?",
+    "answer": "Based on the provided evidence, specific quantitative physical activity recommendations (such as duration or intensity) for type 2 diabetes are not explicitly detailed in the text. However, the following points regarding physical activity for type 2 diabetes are supported by the sources:\n\n*   **General Recommendation:** Physical activity and exercise are recommended for people with type 2 diabetes [SOURCE 2].\n*   **Role in Management:** Physical activity is recognized as a cornerstone of effective disease management for type 2 diabetes mellitus [SOURCE 4].\n*   **Prevention and Prevalence:** Population-wide increases in physical activity, particularly when combined with reduced calorie intake, are associated with a reduction in type 2 diabetes prevalence [SOURCE 3].\n*   **Adherence:** Adherence to physical activity is critical for effective diabetes management, although non-adherence remains common in community settings [SOURCE 5].\n\nThe provided evidence does not clearly address specific quantitative targets (e.g., minutes per day or days per week) exclusively for type 2 diabetes, as the specific quantitative goal of \"60 min of moderate- to vigorous-intensity aerobic activity daily\" is cited in the context of youth with type 1 diabetes [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "14.6 Physical activity is recommended\nfor all youth with type 1 diabetes with\nthe goal of 60 min of moderate- to\nvigorous-intensity aerobic activity daily,\nwith vigorous muscle-strengthening and\nbone-\u2026",
+      "dence for the bene\ufb01ts of exercise in people\nwith type 1 and type 2 diabetes and offers\nspeci\ufb01c recommendations (297). Increased\nphysical activity (soccer training) has also\nbeen shown to be bene\ufb01cial \u2026",
+      "when the population experienced \na reduction in calorie intake and a \nsimultaneous increase in physical \nactivity (2), suggesting population-\nwide changes in diet and physical \nactivity do affect type\u2026",
+      "Patients' Experiences of a Nurse-Guided Physical Activity Program for Type 2 Diabetes and Its Perceived Impact on Health and Quality of Life: A Qualitative Descriptive Study.. Type 2 diabetes mellitus\u2026",
+      "Development and Internal Validation of an Explainable Machine Learning Model for Physical Activity Adherence Among Community-Dwelling Patients with Type 2 Diabetes Mellitus.. Physical activity adheren\u2026"
+    ],
+    "ground_truth": "At least 150 minutes of moderate-intensity aerobic activity per week and resistance training 2-3 times per week are recommended.",
+    "confidence": 0.7554,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the ACCORD trial and what did it show?",
+    "answer": "The provided evidence does not clearly address this question.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "antibodies to insulin. The overall results were negative but a subgroup with the highest concentration \nof anti-insulin antibodies at the start of the trial showed some delay in onset.\nOther approache\u2026",
+      "It's a game changer in terms of diabetic management': A qualitative study of adolescents' and parents' experiences of a 6-month trial of continuous glucose monitoring in type 2 diabetes.\u2026"
+    ],
+    "ground_truth": "The ACCORD trial showed that intensive glycaemic control targeting HbA1c below 6% increased cardiovascular mortality in high-risk T2DM patients.",
+    "confidence": 0.709,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What causes diabetic peripheral neuropathy?",
+    "answer": "Based on the provided evidence, the causes and mechanisms of diabetic peripheral neuropathy (DPN) include:\n\n*   **Sensory Neuron Damage:** Painful DPN arises from damage to sensory neurons [SOURCE 1].\n*   **Biological Mechanisms and Risk Factors:** The condition is associated with specific biological mechanisms and risk factors related to diabetes-associated nerve injury [SOURCE 2].\n*   **Poorly Controlled Diabetes:** DPN is described as a complication of poorly controlled diabetes mellitus [SOURCE 5].\n*   **Microvascular Complications:** DPN is classified as a diabetic microvascular complication, which persists despite improvements in glycemic and cardiovascular risk management [SOURCE 4].\n\nThe provided evidence does not clearly address specific molecular pathways (such as ferroptosis or pyroptosis) as direct *causes* in the context of the question, noting only that these pathways are targeted in the context of microvascular complications [SOURCE 4].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Pain Modulation and Central Sensitization in Painful Diabetic Peripheral Neuropathy: Updated Narrative Review\u00a0and Future Directions.. Painful diabetic peripheral neuropathy (DPN) arises from damage to\u2026",
+      "Diabetic Neuropathies.. This article provides an update on the biological mechanisms and risk factors for the varied manifestations of diabetes-associated nerve injury, and reviews current diagnostic \u2026",
+      "Serum Uric Acid and Diabetic Peripheral Neuropathy in Type 2 Diabetes Mellitus: A Cross-Sectional Study From Northeastern Tanzania.. Diabetic peripheral neuropathy (DPN) is a common and disabling comp\u2026",
+      "Targeting Ferroptosis, Pyroptosis, and NRF2 Signaling with Dietary Polyphenols in Diabetic Microvascular Complications: An Integrative Review.. Diabetic retinopathy, diabetic kidney disease, and diabe\u2026",
+      "Ayurvedic management of diabetic peripheral neuropathy: a case report.. Diabetic neuropathy is a prevalent and debilitating complication of poorly controlled diabetes mellitus, primarily affecting per\u2026"
+    ],
+    "ground_truth": "Diabetic peripheral neuropathy results from chronic hyperglycaemia causing oxidative stress, inflammation, and microvascular damage to peripheral nerves.",
+    "confidence": 0.7138,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What are first-line treatments for painful diabetic neuropathy?",
+    "answer": "The provided evidence does not clearly address this question.\n\nThe sources provided discuss specific interventions for painful diabetic neuropathy (PDN), including:\n*   A multimodal manual therapy, exercise, and psychological intervention [SOURCE 1].\n*   Spinal Cord Stimulation (including high-frequency, low-frequency, and burst modalities) [SOURCE 2, SOURCE 3, SOURCE 4].\n*   Ultrasound-Guided Lumbar Sympathetic Block for refractory cases [SOURCE 5].\n\nHowever, none of the sources explicitly define or list \"first-line\" treatments. They describe the efficacy of these specific advanced or specialized therapies, but do not establish a treatment hierarchy or identify standard first-line pharmacological or non-pharmacological guidelines.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "A multimodal manual therapy, exercise, and psychological intervention for painful diabetic neuropathy: the NeuOst feasibility randomised controlled trial.. People with painful diabetic neuropathy lack\u2026",
+      "Spinal Cord Stimulation Improves Pain and Quality of Life in Painful Diabetic Neuropathy: A Meta-Analysis of Randomized Trials.\u2026",
+      "Comparative efficacy and safety of high-frequency, low-frequency, and burst spinal cord stimulation for painful diabetic neuropathy.. Painful diabetic neuropathy (PDN) is a common complication of diab\u2026",
+      "Spinal Cord Stimulation for Painful Diabetic Neuropathy: A Systematic Review and Meta-Analysis of High- and Low-Frequency Modalities.\u2026",
+      "Repeated Ultrasound-Guided Lumbar Sympathetic Block for Refractory Painful Diabetic Peripheral Neuropathy: The First Case from Mzuzu Central Hospital, Malawi.. Painful diabetic peripheral neuropathy (\u2026"
+    ],
+    "ground_truth": "Pregabalin, duloxetine, and gabapentin are first-line pharmacological treatments for painful diabetic peripheral neuropathy.",
+    "confidence": 0.779,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the role of ACE inhibitors in diabetic nephropathy?",
+    "answer": "Based on the provided evidence, the role of ACE inhibitors in diabetic nephropathy (diabetic kidney disease) is as follows:\n\n*   **First-Line Therapy:** ACE inhibitors are preferred first-line agents for blood pressure treatment in individuals with diabetes, hypertension, an eGFR <60 mL/min/1.73 m\u00b2, and a UACR \u2265300 mg/g creatinine [SOURCE 2].\n*   **Prevention of Progression:** They are recommended due to their proven benefits in preventing the progression of chronic kidney disease (CKD) [SOURCE 2].\n*   **Cardiovascular Benefits:** ACE inhibitors play a role in reducing cardiovascular events [SOURCE 3].\n*   **Combination Therapy:** The combination of ACE inhibitors and ARBs (angiotensin receptor blockers) is not beneficial for cardiovascular disease or CKD outcomes and is associated with higher risks; therefore, this combination should be avoided [SOURCE 1] [SOURCE 5].\n*   **Efficacy in Specific Populations:** In individuals without proteinuria or hypertension, ACE inhibitors did not prevent the development of diabetic glomerulopathy as assessed by kidney biopsy [SOURCE 1].\n*   **Equivalence:** ACE inhibitors are considered to have similar benefits and risks compared to ARBs [SOURCE 2].\n\nThe provided evidence does not clearly address specific dosing protocols or long-term mortality data independent of blood pressure lowering effects beyond the general statement that they reduce mortality as blood pressure\u2013lowering agents in the absence of specific conditions [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "minuria nor hypertension, ACE inhibitors\nor ARBs did not prevent the develop-\nment of diabetic glomerulopathy as-\nsessed by kidney biopsy (73). This was\nfurther supported by a similar trial in\npeople \u2026",
+      "ACE inhibitors or ARBs are the pre-\nferred \ufb01rst-line agents for blood pressure\ntreatment among people with diabetes,\nhypertension, eGFR <60 mL/min/1.73 m2,\nand UACR $300 mg/g creatinine because\nof the\u2026",
+      "to include the role of ACE inhibitors or an-\ngiotensin receptor blockers in preventing\nthe progression of kidney disease and re-\nducing cardiovascular events.\nRecommendation 11.7 was updated\nto re\ufb02ect\u2026",
+      "ican College of Cardiology.\nSection 11. Chronic Kidney Disease\nand Risk Management\n(https://doi.org/10.2337/dc24-S011)\nSection 11 was updated to align with\nthe latest consensus report on diabetes\nmana\u2026",
+      "shown to reduce mortality as blood pres-\nsure\u2013lowering agents in the absence of\nthese conditions (27,69,70).\nMultiple-Drug Therapy. Multiple-drug ther-\napy is often required to achieve blood\npressure \u2026"
+    ],
+    "ground_truth": "ACE inhibitors and ARBs reduce proteinuria and slow progression of diabetic nephropathy and are recommended in patients with albuminuria.",
+    "confidence": 0.805,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is continuous glucose monitoring (CGM)?",
+    "answer": "Based on the provided evidence, Continuous Glucose Monitoring (CGM) is defined by the following characteristics:\n\n*   **Measurement Method:** CGM measures interstitial glucose over time [SOURCE 2].\n*   **Data Output:** It offers real-time and longitudinal insights into glycemic patterns, time in range, and hypoglycemia [SOURCE 1].\n*   **Clinical Application:** While well-established for insulin-treated diabetes, it is increasingly used beyond intensive insulin therapy in type 2 diabetes [SOURCE 2] and is also utilized in non-insulin-treated type 2 diabetes [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Continuous Glucose Monitoring in Primary Care: A Practical, Multidisciplinary Review of Data Interpretation and Billing Updates.. Continuous glucose monitoring (CGM) offers real-time and longitudinal \u2026",
+      "Continuous Glucose Monitoring Beyond Intensive Insulin Therapy in Type 2 Diabetes: Evidence, Over-the-Counter Devices, Equity, and Clinical Implementation.. Continuous glucose monitoring (CGM) measure\u2026",
+      ". Continuous glucose monitoring (CGM) may offer advantages over self-monitored blood glucose (SMBG) in gestational diabetes mellitus (GDM)-complicated pregnancies, but evidence remains inconsistent\u2026",
+      "Continuous Glucose Monitoring Hypoglycemia Alarms in Critical Care: Clinical Utility and Workflow Integration.. Continuous glucose monitoring (CGM) has been associated with reductions in inpatient hyp\u2026",
+      "Evaluation of continuous glucose monitoring outcomes and health care resource utilization in patients with non-insulin-treated type 2 diabetes.. Although continuous glucose monitoring (CGM) is well es\u2026"
+    ],
+    "ground_truth": "CGM measures interstitial glucose continuously, providing real-time glucose values, trends, and alerts for hypoglycaemia and hyperglycaemia.",
+    "confidence": 0.7122,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the diagnostic criterion for type 1 diabetes?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile the sources mention that diagnostic criteria for type 1 diabetes were updated in 2024 based on FDA approval of a new drug to delay its incidence [SOURCE 1], and define type 1 diabetes as characterized by deficient insulin production requiring daily insulin administration [SOURCE 3], they do not list the specific clinical or laboratory diagnostic criteria (such as specific antibody tests, C-peptide levels, or glucose thresholds specific to Type 1) used to diagnose the condition. The glucose thresholds mentioned (FPG \u2265 7.0 mmol/L [SOURCE 2] and A1C \u2265 6.5% [SOURCE 4]) are general diagnostic criteria for diabetes, not specific to the etiology of Type 1 diabetes.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "vestigation of suspected type 1 diabetes\nin newly diagnosed adults.\nThe \u201cType 1 Diabetes\u201d subsection was\nupdated to re\ufb01ne diagnostic criteria for\ntype 1 diabetes based on recent U.S. Food\nand Drug Adm\u2026",
+      "sexes and the fifth leading cause of \ndeath in women in 2012 (1).\nBlood glucose levels that are higher-\nthan-optimal, even if below the \ndiagnostic threshold for diabetes, \nare a major source of morta\u2026",
+      "people live with diabetes.\nType\u202f1 diabetes (previously known \nas insulin-dependent, juvenile \nor childhood-onset diabetes) is \ncharacterized by deficient insulin \nproduction in the body. People \nwith \u2026",
+      "dividual meets the diabetes criterion of A1C\n(two results $6.5% [$48 mmol/mol]) but\nnot FPG (<126 mg/dL [<7.0 mmol/L]), that\nperson should nevertheless be considered\nto have diabetes.\nIf individuals h\u2026",
+      "Celiac disease and celiac serology in children with Type 1 Diabetes: diagnostic timing, serologic patterns, and implications for long-term management.. The prevalence of celiac disease (CeD) in childr\u2026"
+    ],
+    "ground_truth": "Type 1 diabetes is diagnosed by hyperglycaemia with positive islet autoantibodies (GAD, IA-2, ZnT8) and absolute insulin deficiency.",
+    "confidence": 0.7826,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is insulin resistance?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile [SOURCE 1] mentions \"insulin resistance\" as a metabolic consequence associated with PCOS, it does not provide a definition or explanation of what insulin resistance is. [SOURCE 2] discusses insulin therapy for Type 2 diabetes but does not define insulin resistance.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      ". Yet what makes PCOS genuinely challenging is the degree to which these reproductive features overlap with far-reaching metabolic consequences, including insulin resistance, type 2 diabetes, lipid ab\u2026",
+      "Implementing Patient Decision Aids for Insulin Initiation in China: What are the Barriers and Facilitators? A TDF-Based Qualitative Study.. When oral antidiabetic drugs are insufficient to achieve gly\u2026"
+    ],
+    "ground_truth": "Insulin resistance is a condition where cells fail to respond normally to insulin, requiring higher insulin levels to maintain glucose homeostasis.",
+    "confidence": 0.717,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the dawn phenomenon in diabetes?",
+    "answer": "The dawn phenomenon (DP) is defined as the occurrence of spontaneous early-morning hyperglycemia in the absence of overnight hypoglycemia, or a condition that necessitates an elevation in insulin to sustain normal morning blood glucose levels [SOURCE 1]. It is characterized by a rise in glucose levels during the early morning hours [SOURCE 3]. While the phenomenon is addressed independently for type 1 diabetes, specific focus is often placed on its presentation in type 2 diabetes [SOURCE 2].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "The dawn phenomenon in diabetes: pathophysiology from periphery to central nervous system and circadian rhythm-based therapeutic strategies.. The Dawn Phenomenon (DP) denotes the occurrence of spontan\u2026",
+      ". This article focuses mainly on the dawn phenomenon in type 2 diabetes (T2DM), while evidence related to type 1 diabetes (T1DM) is addressed independently.\u2026",
+      "target glucose.\nCan use pens for all components.\nFlexibility in meal timing and\ncontent.\nInsulin analogs cause less\nhypoglycemia than human insulins.\nAt least four daily injections.\nMost costly insuli\u2026",
+      "Diabetes distress: What a clinician needs to know - A South Asian perspective.. Diabetes distress (DD) is a phenomenon that highlights the emotional strain of having diabetes and the unrelenting deman\u2026",
+      ". Paradoxically, rapid improvement in glycaemic control is associated with early worsening of diabetic retinopathy (EWDR), a phenomenon established in the intensive insulin therapy era. Whether HCL in\u2026"
+    ],
+    "ground_truth": "The dawn phenomenon is early morning hyperglycaemia caused by nocturnal growth hormone and cortisol surges increasing insulin resistance.",
+    "confidence": 0.7966,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is bariatric surgery's effect on type 2 diabetes?",
+    "answer": "Based on the provided evidence, bariatric surgery has the following effects on type 2 diabetes (T2DM):\n\n*   **Effectiveness:** Metabolic/bariatric surgery is described as an effective intervention for individuals with obesity and T2DM, with benefits that extend beyond weight loss [SOURCE 2]. It is also characterized as one of the most effective treatments for obesity and T2DM [SOURCE 3] and the most effective treatment for obesity and related T2DM [SOURCE 4].\n*   **Remission:** The surgery can lead to T2DM remission, although this remission is noted to be heterogeneous [SOURCE 4]. Studies examine the durability of this remission, including predictors for sustained remission and glycemic relapse at five years [SOURCE 3].\n*   **Comparison to Medical Treatment:** Evidence includes comparisons of bariatric surgery versus medical treatment for T2DM in patients with a body mass index (BMI) lower than 35, assessing five-year outcomes [SOURCE 1].\n*   **Adolescents:** In adolescents aged 15\u201317 years with BMI \u2265 35 kg/m\u00b2, bariatric surgery has been examined in combination with intensive lifestyle intervention, though evidence for renal benefits in this specific population is limited [SOURCE 5].\n\nThe provided evidence does not clearly address specific quantitative improvements in HbA1c levels or long-term mortality rates beyond the general statements of effectiveness and remission durability.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "113. Hsu CC, Almulai\ufb01A, Chen JC, et al. Effect of\nbariatric surgery vs medical treatment on type 2\ndiabetes in patients with body mass index lower\nthan 35: \ufb01ve-year outcomes. JAMA Surg 2015;150:\n1117\u2013\u2026",
+      "Long-Term Effects of Bariatric Surgery on Type 2 Diabetes: Mechanisms, Outcomes, and Clinical Implications: A Focused Review.. Metabolic/bariatric surgery is an effective intervention for people with \u2026",
+      "Durability of Type 2 Diabetes Remission After Bariatric Surgery: Predictors of Sustained Remission and Glycemic Relapse at Five Years in a Retrospective Single-Center Study.. Metabolic bariatric surge\u2026",
+      "A Simple Scoring Model for Mid-term Remission of Type 2 Diabetes Mellitus After Sleeve Gastrectomy in Chinese Patients.. Metabolic bariatric surgery is the most effective treatment for obesity and rel\u2026",
+      ". Evidence for renal benefits of bariatric surgery in adolescents is limited. We examined the effect of intensive lifestyle intervention, with or without bariatric surgery, on urine albumin-creatinine\u2026"
+    ],
+    "ground_truth": "Bariatric surgery achieves type 2 diabetes remission in 30-63% of patients and is recommended for BMI \u2265 35 with inadequately controlled diabetes.",
+    "confidence": 0.725,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the role of zinc in diabetes?",
+    "answer": "Based on the provided evidence, the role of zinc in diabetes is described as follows:\n\n*   **Biological Functions:** Zinc plays a key biological role in insulin synthesis, storage, signalling, and antioxidant defence [SOURCE 1].\n*   **Clinical Relevance:** The clinical relevance and consistency of zinc supplementation effects in diabetes remain uncertain [SOURCE 1].\n\nThe provided evidence does not clearly address other specific roles or therapeutic outcomes of zinc in diabetes beyond these points.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      ". Zinc plays a key biological role in insulin synthesis, storage, signalling and antioxidant defence; however, the clinical relevance and consistency of zinc supplementation effects in diabetes remain\u2026",
+      "Potential Diagnostic and Therapeutic Role of Amino Acids in Diabetic Kidney Disease: An Updated Review.. Diabetic kidney disease (DKD) is the leading cause of end-stage renal disease. Amino acids play\u2026",
+      "The clinical role of miR-10b-5p in vascular calcification of diabetic nephropathy undergoing maintenance haemodialysis.. The aim of the study is to investigate the clinical role of miR-10b-5p in vascu\u2026",
+      "Mechanisms of efficacy of drug therapy in type 2 diabetes: the role of microbiomes.. The gut microbiota plays a crucial role in the human body and has an impact on the physiological function of the ho\u2026"
+    ],
+    "ground_truth": "Zinc is essential for insulin synthesis, storage, and secretion; zinc transporter 8 (ZnT8) autoantibodies are a marker for type 1 diabetes.",
+    "confidence": 0.773,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is latent autoimmune diabetes in adults (LADA)?",
+    "answer": "Based on the provided evidence, Latent Autoimmune Diabetes in Adults (LADA) is defined by the following characteristics:\n\n*   **Classification and Onset:** It is a complex and heterogeneous form of autoimmune diabetes characterized by adult onset [SOURCE 1] [SOURCE 3]. It is classified as a form of diabetes mediated by autoimmune \u03b2-cell destruction [SOURCE 2].\n*   **Pathophysiology:** The condition is characterized by the presence of pancreatic or islet autoantibodies [SOURCE 1] [SOURCE 3]. It involves slow, progressive autoimmune \u03b2-cell destruction or impairment [SOURCE 2] [SOURCE 4] [SOURCE 5].\n*   **Clinical Course:** LADA is distinguished by a slower progression to insulin dependence compared with classical type 1 diabetes [SOURCE 3]. Patients often experience a long duration of marginal insulin secretory capacity [SOURCE 2].\n*   **Clinical Risks:** The disease is associated with severe glycemic lability, which predisposes patients to in-hospital hypoglycemia [SOURCE 4] [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      ". Latent Autoimmune Diabetes in Adults (LADA) is a complex form of autoimmune diabetes characterised by the presence of pancreatic autoantibodies and a progressive \u03b2-cell decline, often leading to eve\u2026",
+      "an adult onset should be termed latent\nautoimmune diabetes in adults (LADA) or\ntype 1 diabetes. The clinical priority with\ndetection of LADA is awareness that slow\nautoimmune b-cell destruction can oc\u2026",
+      ". Latent autoimmune diabetes in adults (LADA) is a heterogeneous form of autoimmune diabetes characterised by adult onset, the presence of islet autoantibodies, and a slower progression to insulin dep\u2026",
+      "Explainable machine learning model for in-hospital hypoglycemia risk in patients with latent autoimmune diabetes in adults.. Latent autoimmune diabetes in adults (LADA) is characterized by progressive\u2026",
+      "Risk of Hypoglycemia and Associated Factors Among In-Hospital Chinese Patients With Latent Autoimmune Diabetes in Adults (LADA): A Multicenter Retrospective Cohort Study.. Latent autoimmune diabetes i\u2026"
+    ],
+    "ground_truth": "LADA is a slowly progressive autoimmune form of diabetes in adults that initially resembles type 2 diabetes but has positive GAD antibodies.",
+    "confidence": 0.7394,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the recommended protein intake for patients with diabetic nephropathy?",
+    "answer": "Based on the provided evidence, the recommended protein intake for patients with diabetic nephropathy (or diabetic kidney disease) is as follows:\n\n*   **General Recommendation:** The recommended daily allowance is **0.8 g/kg/day** [SOURCE 3] [SOURCE 5].\n*   **Restriction:** Reducing dietary protein below this recommended allowance of 0.8 g/kg/day is **not recommended** [SOURCE 3] [SOURCE 5]. Current evidence does not suggest that individuals with diabetic kidney disease need to restrict protein to less than the generally recommended intake [SOURCE 2].\n*   **Rationale for Not Restricting:** Lowering protein intake below 0.8 g/kg/day does not alter blood glucose levels, cardiovascular risk measures, or the rate of glomerular filtration rate decline, and it may increase the risk for malnutrition [SOURCE 3] [SOURCE 5].\n*   **Upper Limit:** Protein intake exceeding **1.3 g/kg/day** (or >20% of daily calories from protein) should be avoided, as it is associated with increased albuminuria, more rapid kidney function loss, and cardiovascular disease mortality [SOURCE 3].\n*   **Specific Calculation (ICMR Guideline):** The ICMR guideline recommends a protein intake of **0.6 g/kg of ideal body weight plus 24-hour urinary protein loss** (if significant) [SOURCE 1].\n*   **Source of Protein:** Higher plant protein intake and the replacement of animal protein with plant protein are associated with beneficial outcomes [SOURCE 5].\n\nThe provided evidence does not clearly address a single universal numeric target that supersedes the 0.8 g/kg/day general allowance, as the ICMR guideline provides a specific calculation formula [SOURCE 1] while the ADA guidelines emphasize maintaining the standard 0.8 g/kg/day allowance [SOURCE 3] [SOURCE 5].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "saccharin are currently approved for use. However, they should be used in moderation \nand are best avoided in pregnancy. \n6.2.2 Dietary modifications in the presence of complications of diabetes:\t\n(i)\u2026",
+      "Historically, low-protein eating plans\nwere advised for individuals with diabetic\nkidney disease (DKD) (with albuminuria\nand/or reduced estimated glomerular \ufb01l-\ntration rate); however, current evidenc\u2026",
+      "tein intake (>20% of daily calories from\nprotein or >1.3 g/kg/day) have been\nassociated with increased albuminuria,\nmore rapid kidney function loss, and\nCVD mortality and therefore should be\navoided. \u2026",
+      "Fractional Excretion of Total Protein and Long-Term Kidney Outcomes in Patients With Biopsy-Proven Diabetic Nephropathy: The N-BDN Study.. Proteinuria is a standard predictor for kidney prognosis in p\u2026",
+      "protein below the recommended daily al-\nlowance of 0.8 g/kg is not recommended\nbecause it does not alter glycemic meas-\nures, cardiovascular risk measures, or the\nrate at which glomerular \ufb01ltration ra\u2026"
+    ],
+    "ground_truth": "A protein intake of 0.8 g/kg body weight per day is recommended for patients with diabetic nephropathy to slow renal progression.",
+    "confidence": 0.7874,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the mechanism of metformin?",
+    "answer": "Based on the provided evidence, the mechanisms of action for metformin include:\n\n*   **Reduction of hepatic gluconeogenesis:** This is identified as the main mechanism of action, which also involves improving insulin sensitivity and modulating glucose metabolism [SOURCE 1].\n*   **Enhancement of insulin sensitivity:** Metformin mediates its effects by enhancing the sensitivity of the liver and peripheral tissues to circulating insulin [SOURCE 4].\n*   **Gut-related effects:** Increasing evidence points to a pivotal role of the gut in metformin's mechanism, including effects on gut functions and microbiota that contribute to improved glucose tolerance [SOURCE 2].\n*   **Targeting gut-derived NETosis:** Recent studies suggest that metformin's therapeutic action involves targeting gut-derived NETosis, although these mechanisms are not completely understood [SOURCE 3].\n\nThe provided evidence does not clearly address other specific molecular pathways beyond those listed above.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "[The role of metformin in the cardiokidney-metabolic patient].. Metformin is a first-line drug in the treatment of type2 diabetes mellitus (T2DM) due to its efficacy, safety, and cost-effectiveness. I\u2026",
+      "Evaluation of the effects of metformin on gut functions and microbiota and their contribution to improving glucose tolerance in diabetic mice.. Although the mechanism of action of the antidiabetic dru\u2026",
+      "Targeting gut-derived NETosis: A paradigm shift in understanding metformin's therapeutic action.. Metformin remains the most widely prescribed drug for diabetes management, yet recent studies have exp\u2026",
+      "ICMR Guidelines for Management of Type 2 Diabetes 2018\n28\n7.1.1 Biguanides: \nMetformin is the only biguanide available in clinical practice. It mediates its effect \nby enhancing sensitivity of the liv\u2026",
+      "Metformin enhances survival with immune checkpoint inhibitors in cancer patients: A meta-analysis.. Metformin, a primary medication for type 2 diabetes, has garnered interest due to its possible anti-\u2026"
+    ],
+    "ground_truth": "Metformin primarily reduces hepatic glucose production by activating AMPK and inhibiting mitochondrial complex I, with additional gut effects.",
+    "confidence": 0.7342,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What are the symptoms of hypoglycaemia?",
+    "answer": "The provided evidence does not clearly address this question.\n\nWhile [SOURCE 1] mentions assessing hypoglycemia risk by asking individuals about their symptoms and the blood glucose levels at which they begin to feel them, it does not list specific symptoms of hypoglycemia. [SOURCE 2] discusses anxiety and fear of hypoglycemia but does not describe the physiological symptoms of the condition itself.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "awareness by asking individuals whether\nthey ever have low blood glucose without\nfeeling symptoms, or by asking at what\nblood glucose levels they typically begin to\nfeel symptoms (and what those sympt\u2026",
+      "what is prescribed or needed to achieve\nglycemic goals may be experiencing\nsymptoms of obsessive-compulsive disor-\nder (462). General anxiety is a predictor\nof injection-related anxiety and is associ-\u2026"
+    ],
+    "ground_truth": "Symptoms include sweating, tremor, palpitations, anxiety, confusion, and loss of consciousness; blood glucose below 70 mg/dL defines hypoglycaemia.",
+    "confidence": 0.805,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the 15-15 rule for hypoglycaemia treatment?",
+    "answer": "The provided evidence does not clearly address this question.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "reduced as the oral intake of food de-\ncreases but should not be stopped. For\nthose with type 2 diabetes, agents that\nmay cause hypoglycemia should be\nreduced in dose. The main goal is to\navoid hypogl\u2026",
+      "Continuous Glucose Monitoring and Hypoglycaemia Risk During Paediatric DKA Treatment in the PICU: A Retrospective Cohort Study.. Hypoglycaemia is a frequent complication during diabetic ketoacidosis (\u2026",
+      "Continuous Intraperitoneal Insulin Infusion for People With Type 1 Diabetes: A Literature Review and International Position Statement.. Achieving glucose targets without hypoglycaemia is the treatment\u2026"
+    ],
+    "ground_truth": "Consume 15 grams of fast-acting carbohydrate, wait 15 minutes, recheck glucose; repeat if still below 70 mg/dL.",
+    "confidence": 0.7623,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What are DPP-4 inhibitors used for?",
+    "answer": "Based on the provided evidence, DPP-4 inhibitors are used for the following purposes:\n\n*   **Treatment of Type 2 Diabetes Mellitus (T2DM):** They are classified as incretin-based agents specifically for T2DM [SOURCE 2].\n*   **Therapeutic Positioning:**\n    *   They are best used in combination with metformin as a second-line therapy [SOURCE 1].\n    *   They can also be used as monotherapy or in combination with other agents [SOURCE 1].\n    *   In Japan, they are used in combination with biguanides for patients with a BMI < 25 kg/m\u00b2 [SOURCE 4].\n*   **Glycemic Management:** They offer an advantage over insulin secretagogues in delaying the need for insulin initiation after metformin monotherapy [SOURCE 5].\n*   **Safety Profile:** They are noted to have few side effects and a minimal risk of hypoglycemia [SOURCE 3].\n\nThe provided evidence does not clearly address whether DPP-4 inhibitors are used for other conditions beyond T2DM, although one study aims to assess their effects on blood pressure [SOURCE 2].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "linagliptin, teneligliptin and gemigliptin are the DPP-4 inhibitors available in India at \npresent. Most of the gliptins are used as a single daily dose except vildagliptin which \nis used twice a day.\u2026",
+      "Efficacy of DPP-4 Inhibitors on Seated and Ambulatory Blood Pressure in Type 2 Diabetes Mellitus.. Dipeptidyl peptidase-4 inhibitors (DPP-4i) are incretin-based agents for type 2 diabetes mellitus (T2\u2026",
+      "urea and should be avoided in older adults\n(108).\nIncretin-Based Therapies\nOral dipeptidyl peptidase 4 (DPP-4) inhibi-\ntors have few side effects and minimal\nrisk of hypoglycemia, but their cost may\nb\u2026",
+      ". In Japan, DPP-4 inhibitors have been widely used, but since 2022 the pharmacotherapy algorithm has shifted: DPP-4 inhibitors and biguanides for BMI < 25 kg/m  This study investigates factors influen\u2026",
+      ". This study provides real-world evidence that TZDs, DPP-4 inhibitors and SGLT-2 inhibitors may offer an advantage over insulin secretagogues in delaying insulin initiation after metformin monotherapy\u2026"
+    ],
+    "ground_truth": "DPP-4 inhibitors (gliptins) increase incretin levels to lower postprandial glucose; they are weight-neutral with low hypoglycaemia risk.",
+    "confidence": 0.7982,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the role of diet in managing gestational diabetes?",
+    "answer": "Based on the provided evidence, the role of diet in managing and preventing gestational diabetes (GDM) is summarized below:\n\n*   **Prevention of GDM:** Suboptimal diet during pregnancy is identified as an important modifiable risk factor for developing gestational diabetes [SOURCE 1].\n*   **Management of Existing GDM:**\n    *   **Cardiometabolic Risk:** Dietary interventions are utilized among women with a history of GDM to address cardiometabolic risk [SOURCE 4].\n    *   **Mental Health:** Specific dietary approaches, such as a psychobiotic diet, are being investigated for their effects on prenatal and postnatal depression and anxiety in women with GDM [SOURCE 2].\n    *   **Lifestyle and Quality of Life:** GDM is considered a multidimensional health problem that negatively affects lifestyle behaviors and quality of life; while motivational interviewing is cited for improving self-efficacy in managing health, diet remains a core component of the lifestyle behaviors affected by the condition [SOURCE 3].\n\nThe provided evidence does not clearly address specific dietary guidelines (e.g., macronutrient ratios or specific food exclusions) for the direct glycemic control of GDM during pregnancy.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Effects of physical activity and diet in pregnancy to prevent gestational diabetes: an individual participant data (IPD) meta-analysis on the differential effects of interventions with economic evalua\u2026",
+      "Effect of synbiotic supplementation and psychobiotic diet on prenatal and postnatal depression and anxiety in women with gestational diabetes: a three-arm randomised controlled trial protocol.. Gestat\u2026",
+      "The effect of motivational interviewing on self-efficacy in managing health and quality of life in pregnant women with gestational diabetes mellitus: a randomized controlled trial.. Gestational diabet\u2026",
+      "The effects of dietary and physical exercise interventions among women with a history of gestational diabetes mellitus on cardiometabolic risk: A systematic review and meta-analysis.\u2026",
+      "mortality. Gestational diabetes \nincreases the risk of some adverse \noutcomes for mother and offspring \nduring pregnancy, childbirth \nand immediately after delivery \n(pre-eclampsia and eclampsia in \nt\u2026"
+    ],
+    "ground_truth": "Medical nutrition therapy controlling carbohydrate intake is first-line treatment for GDM; insulin is added if glucose targets are not met.",
+    "confidence": 0.8286,
+    "grade": "A",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What causes diabetic retinopathy?",
+    "answer": "Based on the provided evidence, the causes and drivers of diabetic retinopathy (DR) include:\n\n*   **Chronic Hyperglycemia:** The development of DR is driven by complex, interconnected pathophysiological mechanisms triggered by chronic hyperglycemia [SOURCE 1].\n*   **Neurovascular Complications:** DR is identified as a major neurovascular complication of diabetes [SOURCE 2].\n*   **General Association:** DR is broadly defined as a complication of diabetes [SOURCE 4].\n\nThe provided evidence does not clearly address specific molecular pathways or other distinct etiological factors beyond chronic hyperglycemia and its resulting neurovascular effects.\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "Diabetic Retinopathy: From Molecular Mechanisms to Modern Therapy.. Diabetic retinopathy (DR) remains one of the leading causes of vision loss. Its development is driven by complex interconnected path\u2026",
+      "Neurovascular unit uncoupling in diabetic retinopathy: molecular mechanisms and stage-adapted therapeutic strategies.. Diabetic retinopathy (DR) is a major neurovascular complication of diabetes and r\u2026",
+      "Is dry skin a clue to diabetic retinopathy? Clinical insights from the overall dry skin score.. Fluctuations in blood sugar and changes in water retention mechanisms in diabetes mellitus often cause d\u2026",
+      "Diabetic Retinopathy in Primary Healthcare in a Brazilian Municipality: A Cross-Sectional Study Using Teleophthalmology.. Diabetic retinopathy is a complication of diabetes and the leading cause of ir\u2026",
+      "The Role of SGLT2 Inhibitors in the Management of Diabetic Retinopathy: A Literature Review.. Diabetic retinopathy (DR) remains a leading cause of blindness among individuals with diabetes mellitus (D\u2026"
+    ],
+    "ground_truth": "Chronic hyperglycaemia causes retinal microvascular damage through pericyte loss, basement membrane thickening, and neovascularisation.",
+    "confidence": 0.6962,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  },
+  {
+    "question": "What is the EMPA-REG OUTCOME trial?",
+    "answer": "Based on the provided evidence, the EMPA-REG OUTCOME trial is defined as follows:\n\n*   **Full Name:** It is formally identified as the \"Empagliflozin Cardiovascular Outcome Event Trial in Type 2 Diabetes Mellitus Patients\" [SOURCE 2].\n*   **Study Population:** The trial involved participants with type 2 diabetes [SOURCE 2].\n*   **Sample Size:** The trial included 7,020 participants [SOURCE 4].\n*   **Intervention:** The study examined the effects of treatment with empagliflozin [SOURCE 1].\n*   **Key Outcomes:** The trial assessed cardiovascular outcomes, specifically noting that empagliflozin reduced the relative risk for hospitalization from heart failure by 35% [SOURCE 1]. It also examined kidney effects as secondary outcomes [SOURCE 2].\n*   **Participant Characteristics:** Only 10% of the study participants had a prior history of heart failure [SOURCE 1].\n\n\u26a0\ufe0f This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",
+    "contexts": [
+      "failure. In the EMPA-REG OUTCOME trial,\nonly 10% of study participants had a\nprior history of heart failure, and treat-\nment with empagli\ufb02ozin reduced the rel-\native risk for hospitalization from hear\u2026",
+      "A number of large cardiovascular out-\ncomes trials in people with type 2\ndiabetes at high risk for CVD or with ex-\nisting CVD examined kidney effects as\nsecondary outcomes. These trials in-\nclude EMPA\u2026",
+      "spectrum of heart failure risk in the EMPA-REG\nOUTCOME trial. Eur Heart J 2018;39:363\u2013370\n14. McMurray JJV, Solomon SD, Inzucchi SE,\net al.; DAPA-HF Trial Committees\nand In-\nvestigators. Dapagli\ufb02ozin \u2026",
+      "Table 10.3C\u2014Cardiovascular and cardiorenal outcomes trials of available antihyperglycemic medications completed after the issuance of the FDA 2008 guidelines: SGLT2\ninhibitors\nEMPA-REG\nOUTCOME (11)\n(n\u2026",
+      "CANVAS Program Collaborative Group. Canagli-\n\ufb02ozin and cardiovascular and renal events in type 2\ndiabetes. N Engl J Med 2017;377:644\u2013657\n13. Fitchett D, Butler J, van de Borne P, et al.;\nEMPA-REG OUTC\u2026"
+    ],
+    "ground_truth": "EMPA-REG OUTCOME showed empagliflozin reduced cardiovascular death by 38% and hospitalisation for heart failure by 35% in T2DM patients with CVD.",
+    "confidence": 0.805,
+    "grade": "B",
+    "faithfulness_internal": 0.75
+  }
+]
