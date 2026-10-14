@@ -1,12 +1,22 @@
 """
-api/app.py
-FastAPI backend for the Evidence-Verified RAG Diabetes Care System.
+api/app.py — Updated to integrate ALL patent modules (101–115)
 
-Endpoints:
-  POST /query          — main RAG query endpoint
-  POST /feedback       — user feedback collection
-  GET  /health         — health check
-  GET  /stats          — knowledge base statistics
+Patent Module Map:
+  101 Patient Input          -> QueryRequest.patient_params
+  102 Risk Prediction        -> risk_prediction.predict_risk()
+  103 Feature Explanation    -> risk_prediction.explain_features()
+  104 Query Generation       -> risk_prediction.generate_patient_query()
+  105 Hybrid Retrieval       -> retrieval.retriever.hybrid_retrieve()
+  106 Rank Fusion            -> retrieval.retriever.reciprocal_rank_fusion()
+  107 Cross-Encoder Rerank   -> retrieval.retriever.rerank()
+  108 Evidence Verification  -> evidence.verifier.verify_chunks()
+  109 Evidence Admission     -> evidence.verifier (faithfulness threshold)
+  110 Grounded Generation    -> generation.generator.generate_answer()
+  111 Faithfulness Verif.    -> evidence.verifier.check_faithfulness_multi()
+  112 Contradiction Detect.  -> evidence.verifier.find_contradictions()
+  113 Confidence Aggregation -> evidence.verifier.aggregate_confidence()
+  114 Safety Module          -> generation.generator.apply_safety_filter()
+  115 User Interface         -> FastAPI JSON response + Streamlit
 """
 
 import os
@@ -20,191 +30,206 @@ from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import mlflow
-import chromadb
 
 sys.path.append(str(Path(__file__).parent.parent))
-#from config import CHROMA_DB_PATH, COLLECTION_NAME
-from config import (
-    CHROMA_DB_PATH,
-    COLLECTION_NAME,
-    LOCAL_LLM_MODEL,
-    OPENAI_MODEL,
-)
-from generation.generator import generate_answer
+from config import CHROMA_DB_PATH, COLLECTION_NAME
 from ingestion.embedder import get_chroma_collection
 from ingestion.chunker import load_chunks
 from retrieval.retriever import hybrid_retrieve
 from evidence.verifier import verify_chunks, aggregate_confidence
-#from generation.generator import generate_answer
+from generation.generator import generate_answer, get_llm_name
 
-# ---------------------------------------------------------------------------
-# App init
-# ---------------------------------------------------------------------------
-
+# ── App init ──────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="Evidence-Verified RAG — Diabetes Care",
     description=(
-        "AI-powered clinical QA system with evidence verification. "
-        "Every answer is backed by credibility-scored, GRADE-classified sources."
+        "Patent-aligned clinical QA system implementing all 15 modules (101-115). "
+        "Includes XGBoost risk prediction, SHAP feature explanation, "
+        "and patient-specific query generation."
     ),
-    version="1.0.0",
+    version="3.0.0",
 )
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
 
-# Global state (loaded once at startup)
-_collection: Optional[chromadb.Collection] = None
-_all_chunks: list[dict] = []
-_feedback_log: list[dict] = []
+_collection  = None
+_all_chunks  = []
+_feedback_log = []
 
-
-# ---------------------------------------------------------------------------
-# Startup / shutdown
-# ---------------------------------------------------------------------------
 
 @app.on_event("startup")
 async def startup_event():
     global _collection, _all_chunks
-    print("Loading ChromaDB collection…")
     try:
         _collection = get_chroma_collection()
-        print(f"  Collection loaded: {_collection.count()} chunks")
+        print(f"ChromaDB loaded: {_collection.count()} chunks")
     except Exception as e:
-        print(f"  Warning: ChromaDB not ready — {e}. Run ingestion first.")
-
-    print("Loading chunks for BM25…")
+        print(f"ChromaDB not ready: {e}")
     try:
         _all_chunks = load_chunks()
-        print(f"  Loaded {len(_all_chunks)} chunks")
+        print(f"Chunks loaded: {len(_all_chunks)}")
     except FileNotFoundError:
-        print("  Warning: chunks.json not found. Run ingestion/chunker.py first.")
-
-    # MLflow experiment
-    mlflow.set_experiment("diabetes-rag")
+        print("chunks.json not found — run ingestion pipeline first.")
+    mlflow.set_experiment("diabetes-rag-v3")
     print("API ready.")
 
 
-# ---------------------------------------------------------------------------
-# Pydantic schemas
-# ---------------------------------------------------------------------------
+# ── Pydantic Schemas ──────────────────────────────────────────────────────────
+
+class PatientParams(BaseModel):
+    """Module 101 — Patient clinical parameters."""
+    Pregnancies:              Optional[float] = Field(None, description="Number of pregnancies")
+    Glucose:                  Optional[float] = Field(None, description="Fasting plasma glucose mg/dL")
+    BloodPressure:            Optional[float] = Field(None, description="Diastolic BP mm Hg")
+    SkinThickness:            Optional[float] = Field(None, description="Triceps skin fold mm")
+    Insulin:                  Optional[float] = Field(None, description="Serum insulin μU/mL")
+    BMI:                      Optional[float] = Field(None, description="Body mass index kg/m2")
+    DiabetesPedigreeFunction: Optional[float] = Field(None, description="Family history score")
+    Age:                      Optional[float] = Field(None, description="Age in years")
+
 
 class QueryRequest(BaseModel):
-    question: str = Field(..., min_length=5, max_length=1000,
-                          example="What is the recommended HbA1c target for type 2 diabetes?")
-    use_local_llm: bool = Field(True, description="True=Ollama(free), False=GPT-4o(paid)")
-    top_k: int = Field(5, ge=1, le=10, description="Number of evidence chunks to retrieve")
-    patient_context: Optional[str] = Field(None, max_length=500,
-                                           description="Optional patient context (age, comorbidities)")
+    question:       str           = Field(..., min_length=5, max_length=1000,
+                                          example="What is the recommended HbA1c target for type 2 diabetes?")
+    patient_params: Optional[PatientParams] = Field(None, description="Clinical parameters for risk prediction")
+    use_local_llm:  bool          = Field(False)
+    top_k:          int           = Field(5, ge=1, le=10)
+
+
+class RiskResult(BaseModel):
+    risk_score:    float
+    risk_category: str
+    risk_level:    str
+    risk_color:    str
+    prediction:    int
+
+
+class SHAPFeature(BaseModel):
+    feature:    str
+    display:    str
+    shap_value: float
+    direction:  str
+    actual:     object
+
+
+class SHAPResult(BaseModel):
+    top_features: list[SHAPFeature]
+    explanation:  str
+    base_value:   float
 
 
 class CitationItem(BaseModel):
-    source_num: int
-    source: str
-    journal: str
-    year: int
-    evidence_grade: str
+    source_num:        int
+    source:            str
+    journal:           str
+    year:              int
+    evidence_grade:    str
     credibility_score: float
-    source_type: str
-    chunk_preview: str
+    source_type:       str
+    chunk_preview:     str
 
 
 class QueryResponse(BaseModel):
-    question: str
-    answer: str
-    confidence: float
-    evidence_grade: str
-    faithfulness: float
-    avg_credibility: float
-    hallucination_risk: bool
-    contradictions_found: bool
-    citations: list[CitationItem]
-    disclaimer: str
-    llm_used: str
-    timestamp: str
+    question:               str
+    patient_specific_query: Optional[str]
+    risk_result:            Optional[RiskResult]
+    shap_result:            Optional[SHAPResult]
+    answer:                 str
+    confidence:             float
+    evidence_grade:         str
+    faithfulness:           float
+    avg_credibility:        float
+    hallucination_risk:     bool
+    contradictions_found:   bool
+    citations:              list[CitationItem]
+    disclaimer:             str
+    llm_used:               str
+    timestamp:              str
 
 
 class FeedbackRequest(BaseModel):
     question: str
-    answer: str
-    rating: int = Field(..., ge=1, le=5, description="1=poor, 5=excellent")
-    comment: Optional[str] = None
+    answer:   str
+    rating:   int = Field(..., ge=1, le=5)
+    comment:  Optional[str] = None
 
 
-class FeedbackResponse(BaseModel):
-    message: str
-    total_feedback: int
-
-
-class StatsResponse(BaseModel):
-    total_chunks: int
-    collection_name: str
-    status: str
-
-
-# ---------------------------------------------------------------------------
-# Routes
-# ---------------------------------------------------------------------------
+# ── Endpoints ─────────────────────────────────────────────────────────────────
 
 @app.get("/health")
-async def health_check():
+async def health():
     return {
-        "status": "ok",
+        "status":            "ok",
         "collection_loaded": _collection is not None,
-        "chunks_loaded": len(_all_chunks),
-        "timestamp": datetime.utcnow().isoformat(),
+        "chunks_loaded":     len(_all_chunks),
+        "timestamp":         datetime.utcnow().isoformat(),
     }
 
 
-@app.get("/stats", response_model=StatsResponse)
-async def get_stats():
+@app.get("/stats")
+async def stats():
     if _collection is None:
-        raise HTTPException(status_code=503, detail="Knowledge base not loaded.")
-    return StatsResponse(
-        total_chunks=_collection.count(),
-        collection_name=COLLECTION_NAME,
-        status="ready",
-    )
+        raise HTTPException(503, "Knowledge base not loaded.")
+    return {
+        "total_chunks":    _collection.count(),
+        "collection_name": COLLECTION_NAME,
+        "status":          "ready",
+        "llm":             get_llm_name(),
+    }
 
 
 @app.post("/query", response_model=QueryResponse)
 async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
     if _collection is None or not _all_chunks:
-        raise HTTPException(
-            status_code=503,
-            detail="Knowledge base not ready. Run ingestion pipeline first.",
-        )
+        raise HTTPException(503, "Knowledge base not ready. Run ingestion pipeline first.")
 
-    # ---- Step 1: Hybrid retrieval ----
+    # ── Modules 101-104: Patient pipeline ─────────────────────────────────────
+    risk_result_raw  = None
+    shap_result_raw  = None
+    enriched_query   = req.question
+
+    if req.patient_params:
+        patient_dict = {
+            k: v for k, v in req.patient_params.dict().items()
+            if v is not None
+        }
+        if patient_dict:
+            try:
+                from risk_prediction.predictor import run_patient_pipeline
+                pipeline_result  = run_patient_pipeline(
+                    user_query=req.question,
+                    patient_params=patient_dict,
+                )
+                enriched_query   = pipeline_result["patient_specific_query"]
+                risk_result_raw  = pipeline_result["risk_result"]
+                shap_result_raw  = pipeline_result["shap_result"]
+            except Exception as e:
+                print(f"Risk pipeline error (non-fatal): {e}")
+                enriched_query = req.question
+
+    # ── Modules 105-107: Hybrid retrieval ─────────────────────────────────────
     retrieved = hybrid_retrieve(
-        query=req.question,
+        query=enriched_query,
         collection=_collection,
         all_chunks=_all_chunks,
         top_k=req.top_k,
     )
-
     if not retrieved:
-        raise HTTPException(status_code=404, detail="No relevant documents found.")
+        raise HTTPException(404, "No relevant documents found.")
 
-    # ---- Step 2: Evidence verification ----
+    # ── Modules 108-109: Evidence verification ────────────────────────────────
     verified = verify_chunks(retrieved)
 
-    # ---- Step 3: LLM generation ----
-    # Prepend patient context if provided
-    full_query = req.question
-    if req.patient_context:
-        full_query = f"Patient context: {req.patient_context}\n\nQuestion: {req.question}"
+    # ── Module 110: Grounded generation ──────────────────────────────────────
+    answer = generate_answer(enriched_query, verified, use_local=req.use_local_llm)
 
-    answer = generate_answer(full_query, verified, use_local=req.use_local_llm)
-
-    # ---- Step 4: Confidence aggregation ----
+    # ── Modules 111-113: Confidence aggregation ───────────────────────────────
     conf_report = aggregate_confidence(verified, answer)
 
-    # ---- Step 5: Build citations ----
+    # ── Module 115: Build structured response ─────────────────────────────────
     citations = [
         CitationItem(
             source_num=i + 1,
@@ -219,20 +244,50 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         for i, c in enumerate(verified)
     ]
 
-    # ---- Step 6: Log to MLflow (background) ----
+    # Serialise risk result
+    risk_resp = None
+    if risk_result_raw:
+        risk_resp = RiskResult(
+            risk_score=risk_result_raw["risk_score"],
+            risk_category=risk_result_raw["risk_category"],
+            risk_level=risk_result_raw["risk_level"],
+            risk_color=risk_result_raw["risk_color"],
+            prediction=risk_result_raw["prediction"],
+        )
+
+    # Serialise SHAP result
+    shap_resp = None
+    if shap_result_raw:
+        shap_resp = SHAPResult(
+            top_features=[
+                SHAPFeature(
+                    feature=item["feature"],
+                    display=item["display"],
+                    shap_value=item["shap_value"],
+                    direction=item["direction"],
+                    actual=item["actual"],
+                )
+                for item in shap_result_raw["top_features"]
+            ],
+            explanation=shap_result_raw["explanation"],
+            base_value=shap_result_raw["base_value"],
+        )
+
     background_tasks.add_task(
-        log_to_mlflow,
+        _log_mlflow,
         question=req.question,
         confidence=conf_report["confidence"],
         grade=conf_report["grade"],
         faithfulness=conf_report["faithfulness"],
-        llm=LOCAL_LLM_MODEL if req.use_local_llm else OPENAI_MODEL,
-        top_k=req.top_k,
+        llm=get_llm_name(),
+        has_patient_params=risk_result_raw is not None,
     )
 
-   
     return QueryResponse(
         question=req.question,
+        patient_specific_query=enriched_query if enriched_query != req.question else None,
+        risk_result=risk_resp,
+        shap_result=shap_resp,
         answer=answer,
         confidence=conf_report["confidence"],
         evidence_grade=conf_report["grade"],
@@ -242,54 +297,39 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         contradictions_found=bool(conf_report["contradictions"]),
         citations=citations,
         disclaimer="This system provides information only. Always consult a qualified clinician.",
-       # llm_used=LOCAL_LLM_MODEL if req.use_local_llm else OPENAI_MODEL,
-        llm_used="Groq — qwen/qwen3.8-27b",
+        llm_used=get_llm_name(),
         timestamp=datetime.utcnow().isoformat(),
     )
 
 
-@app.post("/feedback", response_model=FeedbackResponse)
-async def submit_feedback(req: FeedbackRequest):
+@app.post("/feedback")
+async def feedback(req: FeedbackRequest):
     entry = {
-        "question": req.question,
+        "question":      req.question,
         "answer_preview": req.answer[:200],
-        "rating": req.rating,
-        "comment": req.comment,
-        "timestamp": datetime.utcnow().isoformat(),
+        "rating":        req.rating,
+        "comment":       req.comment,
+        "timestamp":     datetime.utcnow().isoformat(),
     }
     _feedback_log.append(entry)
-
-    # Persist to disk
     log_path = Path("./data/feedback_log.json")
     log_path.parent.mkdir(parents=True, exist_ok=True)
     with open(log_path, "w") as f:
         json.dump(_feedback_log, f, indent=2)
-
-    return FeedbackResponse(
-        message="Thank you for your feedback.",
-        total_feedback=len(_feedback_log),
-    )
+    return {"message": "Feedback saved.", "total": len(_feedback_log)}
 
 
-# ---------------------------------------------------------------------------
-# MLflow logging (background task)
-# ---------------------------------------------------------------------------
-
-def log_to_mlflow(question, confidence, grade, faithfulness, llm, top_k):
+def _log_mlflow(question, confidence, grade, faithfulness, llm, has_patient_params):
     try:
         with mlflow.start_run(run_name="query"):
             mlflow.log_param("llm", llm)
-            mlflow.log_param("top_k", top_k)
+            mlflow.log_param("has_patient_params", has_patient_params)
             mlflow.log_metric("confidence", confidence)
             mlflow.log_metric("faithfulness", faithfulness)
             mlflow.log_param("evidence_grade", grade)
     except Exception:
-        pass  # MLflow logging is non-critical
+        pass
 
-
-# ---------------------------------------------------------------------------
-# Entry point
-# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     import uvicorn
