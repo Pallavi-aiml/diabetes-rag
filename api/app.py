@@ -192,10 +192,14 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
     enriched_query   = req.question
 
     if req.patient_params:
-        patient_dict = {
-            k: v for k, v in req.patient_params.dict().items()
-            if v is not None
-        }
+        patient_dict = {}
+        for k, v in req.patient_params.dict().items():
+            if v is not None:
+                try:
+                    patient_dict[k] = float(str(v).strip())
+                except (ValueError, TypeError):
+                    pass
+
         if patient_dict:
             try:
                 from risk_prediction.predictor import run_patient_pipeline

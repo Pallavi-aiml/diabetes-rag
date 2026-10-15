@@ -146,42 +146,18 @@ def load_or_train():
 
 
 def _get_feature_vector(patient_params: dict) -> np.ndarray:
-    df_ref = download_pima_dataset()
-
-    zero_cols = [
-        "Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"
-    ]
+    df_ref    = download_pima_dataset()
+    zero_cols = ["Glucose","BloodPressure","SkinThickness","Insulin","BMI"]
     df_ref[zero_cols] = df_ref[zero_cols].replace(0, np.nan)
-    medians = df_ref[FEATURE_NAMES].median()
-
+    medians   = df_ref[FEATURE_NAMES].median()
     values = []
-
-    for feature in FEATURE_NAMES:
-        value = patient_params.get(feature, medians[feature])
-
+    for f in FEATURE_NAMES:
         try:
-            # Handle values such as '[3.485342E-1]'
-            if isinstance(value, str):
-                value = value.strip()
-                if value.startswith("[") and value.endswith("]"):
-                    value = value[1:-1].strip()
-
-            numeric_value = np.asarray(value, dtype=float)
-
-            if numeric_value.size != 1:
-                raise ValueError(
-                    f"{feature} must contain one numeric value; "
-                    f"received {value!r}"
-                )
-
-            values.append(float(numeric_value.item()))
-
-        except (TypeError, ValueError) as exc:
-            raise ValueError(
-                f"Invalid patient parameter {feature}: {value!r}"
-            ) from exc
-
-    return np.array(values, dtype=float).reshape(1, -1)
+            val = float(str(patient_params.get(f, medians[f])).strip())
+        except (ValueError, TypeError):
+            val = float(medians[f])
+        values.append(val)
+    return np.array(values).reshape(1, -1)
 
 
 
