@@ -1,22 +1,5 @@
 """
-api/app.py — Updated to integrate ALL patent modules (101–115)
-
-Patent Module Map:
-  101 Patient Input          -> QueryRequest.patient_params
-  102 Risk Prediction        -> risk_prediction.predict_risk()
-  103 Feature Explanation    -> risk_prediction.explain_features()
-  104 Query Generation       -> risk_prediction.generate_patient_query()
-  105 Hybrid Retrieval       -> retrieval.retriever.hybrid_retrieve()
-  106 Rank Fusion            -> retrieval.retriever.reciprocal_rank_fusion()
-  107 Cross-Encoder Rerank   -> retrieval.retriever.rerank()
-  108 Evidence Verification  -> evidence.verifier.verify_chunks()
-  109 Evidence Admission     -> evidence.verifier (faithfulness threshold)
-  110 Grounded Generation    -> generation.generator.generate_answer()
-  111 Faithfulness Verif.    -> evidence.verifier.check_faithfulness_multi()
-  112 Contradiction Detect.  -> evidence.verifier.find_contradictions()
-  113 Confidence Aggregation -> evidence.verifier.aggregate_confidence()
-  114 Safety Module          -> generation.generator.apply_safety_filter()
-  115 User Interface         -> FastAPI JSON response + Streamlit
+api/app.py — Updated to integrate ALL patent modules (101-115)
 """
 
 import os
@@ -42,11 +25,7 @@ from generation.generator import generate_answer, get_llm_name
 # ── App init ──────────────────────────────────────────────────────────────────
 app = FastAPI(
     title="Evidence-Verified RAG — Diabetes Care",
-    description=(
-        "Patent-aligned clinical QA system implementing all 15 modules (101-115). "
-        "Includes XGBoost risk prediction, SHAP feature explanation, "
-        "and patient-specific query generation."
-    ),
+    description="Patent-aligned clinical QA system — all 15 modules (101-115).",
     version="3.0.0",
 )
 
@@ -55,8 +34,8 @@ app.add_middleware(
     allow_origins=["*"], allow_methods=["*"], allow_headers=["*"],
 )
 
-_collection  = None
-_all_chunks  = []
+_collection   = None
+_all_chunks   = []
 _feedback_log = []
 
 
@@ -80,21 +59,19 @@ async def startup_event():
 # ── Pydantic Schemas ──────────────────────────────────────────────────────────
 
 class PatientParams(BaseModel):
-    """Module 101 — Patient clinical parameters."""
-    Pregnancies:              Optional[float] = Field(None, description="Number of pregnancies")
-    Glucose:                  Optional[float] = Field(None, description="Fasting plasma glucose mg/dL")
-    BloodPressure:            Optional[float] = Field(None, description="Diastolic BP mm Hg")
-    SkinThickness:            Optional[float] = Field(None, description="Triceps skin fold mm")
-    Insulin:                  Optional[float] = Field(None, description="Serum insulin μU/mL")
-    BMI:                      Optional[float] = Field(None, description="Body mass index kg/m2")
-    DiabetesPedigreeFunction: Optional[float] = Field(None, description="Family history score")
-    Age:                      Optional[float] = Field(None, description="Age in years")
+    Pregnancies:              Optional[float] = Field(None)
+    Glucose:                  Optional[float] = Field(None)
+    BloodPressure:            Optional[float] = Field(None)
+    SkinThickness:            Optional[float] = Field(None)
+    Insulin:                  Optional[float] = Field(None)
+    BMI:                      Optional[float] = Field(None)
+    DiabetesPedigreeFunction: Optional[float] = Field(None)
+    Age:                      Optional[float] = Field(None)
 
 
 class QueryRequest(BaseModel):
-    question:       str           = Field(..., min_length=5, max_length=1000,
-                                          example="What is the recommended HbA1c target for type 2 diabetes?")
-    patient_params: Optional[PatientParams] = Field(None, description="Clinical parameters for risk prediction")
+    question:       str           = Field(..., min_length=5, max_length=1000)
+    patient_params: Optional[PatientParams] = Field(None)
     use_local_llm:  bool          = Field(False)
     top_k:          int           = Field(5, ge=1, le=10)
 
@@ -184,14 +161,15 @@ async def stats():
 @app.post("/query", response_model=QueryResponse)
 async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
     if _collection is None or not _all_chunks:
-        raise HTTPException(503, "Knowledge base not ready. Run ingestion pipeline first.")
+        raise HTTPException(503, "Knowledge base not ready.")
 
     # ── Modules 101-104: Patient pipeline ─────────────────────────────────────
-    risk_result_raw  = None
-    shap_result_raw  = None
-    enriched_query   = req.question
+    risk_result_raw = None
+    shap_result_raw = None
+    enriched_query  = req.question
 
     if req.patient_params:
+        # Safely convert all values to float
         patient_dict = {}
         for k, v in req.patient_params.dict().items():
             if v is not None:
@@ -203,13 +181,13 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         if patient_dict:
             try:
                 from risk_prediction.predictor import run_patient_pipeline
-                pipeline_result  = run_patient_pipeline(
+                pipeline_result = run_patient_pipeline(
                     user_query=req.question,
                     patient_params=patient_dict,
                 )
-                enriched_query   = pipeline_result["patient_specific_query"]
-                risk_result_raw  = pipeline_result["risk_result"]
-                shap_result_raw  = pipeline_result["shap_result"]
+                enriched_query  = pipeline_result["patient_specific_query"]
+                risk_result_raw = pipeline_result["risk_result"]
+                shap_result_raw = pipeline_result["shap_result"]
             except Exception as e:
                 print(f"Risk pipeline error (non-fatal): {e}")
                 enriched_query = req.question
@@ -243,7 +221,7 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
             evidence_grade=c.get("evidence_grade", "D"),
             credibility_score=c.get("credibility_score", 0.0),
             source_type=c.get("source_type", "unknown"),
-            chunk_preview=c["text"][:200] + "…",
+            chunk_preview=c["text"][:200] + "...",
         )
         for i, c in enumerate(verified)
     ]
@@ -255,7 +233,7 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
             risk_score=risk_result_raw["risk_score"],
             risk_category=risk_result_raw["risk_category"],
             risk_level=risk_result_raw["risk_level"],
-            risk_color=risk_result_raw["risk_color"],
+            risk_color=risk_result_raw.get("risk_color", "#6c757d"),
             prediction=risk_result_raw["prediction"],
         )
 
@@ -309,11 +287,11 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
 @app.post("/feedback")
 async def feedback(req: FeedbackRequest):
     entry = {
-        "question":      req.question,
+        "question":       req.question,
         "answer_preview": req.answer[:200],
-        "rating":        req.rating,
-        "comment":       req.comment,
-        "timestamp":     datetime.utcnow().isoformat(),
+        "rating":         req.rating,
+        "comment":        req.comment,
+        "timestamp":      datetime.utcnow().isoformat(),
     }
     _feedback_log.append(entry)
     log_path = Path("./data/feedback_log.json")

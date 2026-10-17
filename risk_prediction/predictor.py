@@ -7,7 +7,6 @@ Patent Modules 102, 103, 104:
   104 — Query Generation Module   : patient-specific retrieval query builder
 
 Dataset: Pima Indians Diabetes Dataset (free, UCI ML Repository)
-         768 female patients, 8 clinical features, binary outcome
 """
 
 import os
@@ -15,7 +14,6 @@ import pickle
 import warnings
 import numpy as np
 import pandas as pd
-import requests
 from pathlib import Path
 
 warnings.filterwarnings("ignore")
@@ -26,7 +24,6 @@ SCALER_PATH = MODEL_DIR / "scaler.pkl"
 DATA_PATH   = MODEL_DIR / "pima_diabetes.csv"
 MODEL_DIR.mkdir(exist_ok=True)
 
-# ── Feature definitions ───────────────────────────────────────────────────────
 FEATURE_NAMES = [
     "Pregnancies",
     "Glucose",
@@ -43,8 +40,8 @@ FEATURE_DISPLAY = {
     "Glucose":                   "Fasting Plasma Glucose (mg/dL)",
     "BloodPressure":             "Diastolic Blood Pressure (mm Hg)",
     "SkinThickness":             "Skin Fold Thickness (mm)",
-    "Insulin":                   "Serum Insulin (μU/mL)",
-    "BMI":                       "Body Mass Index (kg/m²)",
+    "Insulin":                   "Serum Insulin (uU/mL)",
+    "BMI":                       "Body Mass Index (kg/m2)",
     "DiabetesPedigreeFunction":  "Diabetes Pedigree (Family History)",
     "Age":                       "Age (years)",
 }
@@ -57,7 +54,13 @@ RISK_THRESHOLDS = {
 }
 
 
-# ── Dataset download ──────────────────────────────────────────────────────────
+def _safe_float(value, default=0.0):
+    """Safely convert any value to float, handling scientific notation."""
+    try:
+        return float(str(value).strip())
+    except (ValueError, TypeError):
+        return float(default)
+
 
 def download_pima_dataset() -> pd.DataFrame:
     if DATA_PATH.exists():
@@ -68,12 +71,12 @@ def download_pima_dataset() -> pd.DataFrame:
     cols = FEATURE_NAMES + ["Outcome"]
     try:
         print("Downloading Pima Indians Diabetes Dataset...")
+        import requests
         df = pd.read_csv(url, header=None, names=cols)
         df.to_csv(DATA_PATH, index=False)
         print(f"  Saved ({len(df)} rows)")
         return df
     except Exception:
-        # Bundled fallback dataset
         data = [
             [6,148,72,35,0,33.6,0.627,50,1],[1,85,66,29,0,26.6,0.351,31,0],
             [8,183,64,0,0,23.3,0.672,32,1],[1,89,66,23,94,28.1,0.167,21,0],
@@ -91,8 +94,6 @@ def download_pima_dataset() -> pd.DataFrame:
         return df
 
 
-# ── Model training ────────────────────────────────────────────────────────────
-
 def train_model():
     from xgboost import XGBClassifier
     from sklearn.model_selection import train_test_split
@@ -101,7 +102,6 @@ def train_model():
 
     df = download_pima_dataset()
 
-    # Replace impossible zeros with median
     zero_cols = ["Glucose","BloodPressure","SkinThickness","Insulin","BMI"]
     df[zero_cols] = df[zero_cols].replace(0, np.nan)
     df[zero_cols] = df[zero_cols].fillna(df[zero_cols].median())
@@ -146,34 +146,25 @@ def load_or_train():
 
 
 def _get_feature_vector(patient_params: dict) -> np.ndarray:
+    """Safely build feature vector with float conversion."""
     df_ref    = download_pima_dataset()
     zero_cols = ["Glucose","BloodPressure","SkinThickness","Insulin","BMI"]
     df_ref[zero_cols] = df_ref[zero_cols].replace(0, np.nan)
     medians   = df_ref[FEATURE_NAMES].median()
+
     values = []
     for f in FEATURE_NAMES:
-        try:
-            val = float(str(patient_params.get(f, medians[f])).strip())
-        except (ValueError, TypeError):
-            val = float(medians[f])
-        values.append(val)
-    return np.array(values).reshape(1, -1)
+        raw     = patient_params.get(f, medians[f])
+        default = float(medians[f])
+        values.append(_safe_float(raw, default))
 
+    return np.array(values).reshape(1, -1)
 
 
 # ── Module 102: Risk Prediction ───────────────────────────────────────────────
 
 def predict_risk(patient_params: dict) -> dict:
-    """
-    Patent Module 102 — Risk Prediction Module.
-    XGBoost diabetes risk scorer.
-
-    Args:
-        patient_params: dict with clinical parameter keys
-
-    Returns:
-        risk_score, risk_category, risk_level, risk_color, prediction
-    """
+    """Patent Module 102 — XGBoost diabetes risk scorer."""
     model, scaler = load_or_train()
     X      = _get_feature_vector(patient_params)
     X_sc   = scaler.transform(X)
@@ -197,20 +188,15 @@ def predict_risk(patient_params: dict) -> dict:
         "risk_level":     risk_level,
         "risk_color":     risk_color,
         "prediction":     prediction,
-        "feature_values": dict(zip(FEATURE_NAMES, _get_feature_vector(patient_params).flatten().tolist())),
+        "feature_values": dict(zip(FEATURE_NAMES,
+                           _get_feature_vector(patient_params).flatten().tolist())),
     }
 
 
 # ── Module 103: SHAP Feature Explanation ─────────────────────────────────────
 
 def explain_features(patient_params: dict, top_n: int = 4) -> dict:
-    """
-    Patent Module 103 — Feature Explanation Module.
-    SHAP TreeExplainer to identify feature contributions.
-
-    Returns:
-        shap_values, top_features, base_value, explanation string
-    """
+    """Patent Module 103 — SHAP TreeExplainer feature contributions."""
     import shap
 
     model, scaler = load_or_train()
@@ -229,16 +215,12 @@ def explain_features(patient_params: dict, top_n: int = 4) -> dict:
     sorted_feats = sorted(shap_dict.items(), key=lambda x: abs(x[1]), reverse=True)
     top_features = sorted_feats[:top_n]
 
-    # Build explanation string
     lines = []
     for feat, val in top_features:
         direction = "increases" if val > 0 else "decreases"
         display   = FEATURE_DISPLAY.get(feat, feat)
         actual    = patient_params.get(feat, "N/A")
-        lines.append(
-            f"{display} = {actual} {direction} risk "
-            f"(SHAP: {val:+.3f})"
-        )
+        lines.append(f"{display} = {actual} {direction} risk (SHAP: {val:+.3f})")
     explanation = "; ".join(lines)
 
     return {
@@ -266,11 +248,7 @@ def generate_patient_query(
     shap_result:    dict,
     patient_params: dict,
 ) -> str:
-    """
-    Patent Module 104 — Query Generation Module.
-    Combines user query + risk score + SHAP features
-    into a personalised retrieval query.
-    """
+    """Patent Module 104 — Patient-specific retrieval query builder."""
     risk_category = risk_result["risk_category"]
     risk_score    = risk_result["risk_score"]
 
@@ -282,12 +260,11 @@ def generate_patient_query(
         top_feat_strings.append(f"{disp}: {val}")
 
     clinical_context = ", ".join(top_feat_strings)
-    enriched_query   = (
+    return (
         f"{user_query} "
         f"[Patient: {risk_category} (score={risk_score:.2f}); "
         f"Key parameters: {clinical_context}]"
     )
-    return enriched_query
 
 
 # ── Full pipeline: 102 + 103 + 104 ───────────────────────────────────────────
@@ -297,14 +274,16 @@ def run_patient_pipeline(
     patient_params: dict,
     top_shap:       int = 4,
 ) -> dict:
-    """
-    Run all three patent modules in sequence.
-    Returns enriched query + risk result + SHAP result.
-    """
-    risk_result   = predict_risk(patient_params)
-    shap_result   = explain_features(patient_params, top_n=top_shap)
+    """Run all three patent modules in sequence."""
+    # Ensure all values are clean floats
+    clean_params = {}
+    for k, v in patient_params.items():
+        clean_params[k] = _safe_float(v, 0.0)
+
+    risk_result   = predict_risk(clean_params)
+    shap_result   = explain_features(clean_params, top_n=top_shap)
     patient_query = generate_patient_query(
-        user_query, risk_result, shap_result, patient_params
+        user_query, risk_result, shap_result, clean_params
     )
     return {
         "original_query":         user_query,
@@ -337,5 +316,4 @@ if __name__ == "__main__":
     print(f"Risk Category   : {result['risk_result']['risk_category']}")
     print(f"\nTop SHAP Features:")
     for item in result["shap_result"]["top_features"]:
-        print(f"  {item['display']}: SHAP = {item['shap_value']:+.4f} "
-              f"({item['direction']} risk)")
+        print(f"  {item['display']}: SHAP = {item['shap_value']:+.4f} ({item['direction']} risk)")
