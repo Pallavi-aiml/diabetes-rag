@@ -1,0 +1,22 @@
+{
+  "timestamp": "20261019_204054",
+  "questions_attempted": 50,
+  "successful_api_responses": 36,
+  "api_errors": 14,
+  "category_counts": {
+    "answerable": 40,
+    "unsupported": 5,
+    "unanswerable": 5
+  },
+  "average_confidence": 0.67395,
+  "average_internal_faithfulness": 0.5617722222222222,
+  "hallucination_flag_count": 22,
+  "hallucination_flag_rate": 0.6111111111111112,
+  "hallucination_flag_coverage": 36,
+  "contradiction_flag_count": 5,
+  "contradiction_flag_rate": 0.1388888888888889,
+  "contradiction_flag_coverage": 36,
+  "average_citation_count": 3.5,
+  "ragas_metrics": {},
+  "note": "These are system-reported heuristic metrics, not proof of clinical correctness or safety. Flag rates are calculated only over successful responses where the API returned the relevant flag. API errors are recorded but excluded from metric averages."
+}

@@ -1,28 +1,29 @@
 """
 risk_prediction/predictor.py
 
-Patent Modules 102, 103, 104:
-  102 — Risk Prediction Module    : XGBoost diabetes risk scorer
-  103 — Feature Explanation Module: SHAP-based feature contribution
-  104 — Query Generation Module   : patient-specific retrieval query builder
-
-Dataset: Pima Indians Diabetes Dataset (free, UCI ML Repository)
+Diabetes risk model utilities.
+IMPORTANT: This is an educational risk-estimation model, not a diagnostic tool.
+The Pima Indians dataset is limited and does not establish clinical validity.
 """
 
-import os
+from __future__ import annotations
+
 import pickle
 import warnings
+from pathlib import Path
+from typing import Any
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
 
-warnings.filterwarnings("ignore")
+warnings.filterwarnings("default")
 
-MODEL_DIR   = Path(__file__).parent / "models"
-MODEL_PATH  = MODEL_DIR / "xgb_diabetes_risk.pkl"
+MODEL_DIR = Path(__file__).parent / "models"
+MODEL_PATH = MODEL_DIR / "xgb_diabetes_risk.pkl"
 SCALER_PATH = MODEL_DIR / "scaler.pkl"
-DATA_PATH   = MODEL_DIR / "pima_diabetes.csv"
-MODEL_DIR.mkdir(exist_ok=True)
+IMPUTER_PATH = MODEL_DIR / "imputer.pkl"
+DATA_PATH = MODEL_DIR / "pima_diabetes.csv"
+MODEL_DIR.mkdir(parents=True, exist_ok=True)
 
 FEATURE_NAMES = [
     "Pregnancies",
@@ -36,284 +37,447 @@ FEATURE_NAMES = [
 ]
 
 FEATURE_DISPLAY = {
-    "Pregnancies":               "Number of Pregnancies",
-    "Glucose":                   "Fasting Plasma Glucose (mg/dL)",
-    "BloodPressure":             "Diastolic Blood Pressure (mm Hg)",
-    "SkinThickness":             "Skin Fold Thickness (mm)",
-    "Insulin":                   "Serum Insulin (uU/mL)",
-    "BMI":                       "Body Mass Index (kg/m2)",
-    "DiabetesPedigreeFunction":  "Diabetes Pedigree (Family History)",
-    "Age":                       "Age (years)",
+    "Pregnancies": "Number of Pregnancies",
+    "Glucose": "Fasting Plasma Glucose (mg/dL)",
+    "BloodPressure": "Diastolic Blood Pressure (mm Hg)",
+    "SkinThickness": "Skin Fold Thickness (mm)",
+    "Insulin": "Serum Insulin (uU/mL)",
+    "BMI": "Body Mass Index (kg/m²)",
+    "DiabetesPedigreeFunction": "Diabetes Pedigree (Family History)",
+    "Age": "Age (years)",
 }
 
+# These are illustrative model-score bands, NOT clinically validated thresholds.
+# Binary model prediction uses CLASSIFICATION_THRESHOLD.
+CLASSIFICATION_THRESHOLD = 0.50
 RISK_THRESHOLDS = {
-    (0.00, 0.30): ("Low Risk",       "low",       "#28a745"),
-    (0.30, 0.55): ("Moderate Risk",  "moderate",  "#fd7e14"),
-    (0.55, 0.75): ("High Risk",      "high",      "#dc3545"),
+    (0.00, 0.30): ("Low Risk", "low", "#28a745"),
+    (0.30, 0.50): ("Moderate Risk", "moderate", "#fd7e14"),
+    (0.50, 0.75): ("High Risk", "high", "#dc3545"),
     (0.75, 1.01): ("Very High Risk", "very_high", "#7b0000"),
 }
 
+ZERO_AS_MISSING = ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]
+# Broad sanity bounds catch obvious data-entry mistakes; they are not diagnostic cutoffs.
+FEATURE_BOUNDS = {
+    "Pregnancies": (0, 30),
+    "Glucose": (1, 500),
+    "BloodPressure": (1, 300),
+    "SkinThickness": (1, 150),
+    "Insulin": (1, 3000),
+    "BMI": (1, 150),
+    "DiabetesPedigreeFunction": (0, 20),
+    "Age": (1, 120),
+}
 
-def _safe_float(value, default=0.0):
-    """Safely convert any value to float, handling scientific notation."""
-    try:
-        return float(str(value).strip())
-    except (ValueError, TypeError):
-        return float(default)
+
+def _load_dataset_from_path(path: Path) -> pd.DataFrame:
+    """Load a CSV and validate its expected schema."""
+    df = pd.read_csv(path)
+    # Also support the original headerless Pima CSV format.
+    if not set(FEATURE_NAMES + ["Outcome"]).issubset(df.columns):
+        if df.shape[1] == 9:
+            df.columns = FEATURE_NAMES + ["Outcome"]
+        else:
+            raise ValueError(
+                f"Dataset at {path} must contain the eight features and Outcome."
+            )
+    return df[FEATURE_NAMES + ["Outcome"]]
 
 
 def download_pima_dataset() -> pd.DataFrame:
-    if DATA_PATH.exists():
-        return pd.read_csv(DATA_PATH)
+    """Load a real local dataset or download it; never silently train on fake data."""
+    candidates = [
+        DATA_PATH,
+        Path(__file__).resolve().parents[1] / "pima_diabetes.csv",
+        Path.cwd() / "pima_diabetes.csv",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            df = _load_dataset_from_path(candidate)
+            if len(df) < 100:
+                raise ValueError(
+                    f"Dataset {candidate} contains only {len(df)} rows; refusing to train."
+                )
+            return df
 
-    url  = ("https://raw.githubusercontent.com/jbrownlee/Datasets/master/"
-             "pima-indians-diabetes.data.csv")
-    cols = FEATURE_NAMES + ["Outcome"]
+    url = (
+        "https://raw.githubusercontent.com/jbrownlee/Datasets/master/"
+        "pima-indians-diabetes.data.csv"
+    )
     try:
-        print("Downloading Pima Indians Diabetes Dataset...")
         import requests
-        df = pd.read_csv(url, header=None, names=cols)
-        df.to_csv(DATA_PATH, index=False)
-        print(f"  Saved ({len(df)} rows)")
-        return df
-    except Exception:
-        data = [
-            [6,148,72,35,0,33.6,0.627,50,1],[1,85,66,29,0,26.6,0.351,31,0],
-            [8,183,64,0,0,23.3,0.672,32,1],[1,89,66,23,94,28.1,0.167,21,0],
-            [0,137,40,35,168,43.1,2.288,33,1],[5,116,74,0,0,25.6,0.201,30,0],
-            [3,78,50,32,88,31.0,0.248,26,1],[10,115,0,0,0,35.3,0.134,29,0],
-            [2,197,70,45,543,30.5,0.158,53,1],[8,125,96,0,0,0.0,0.232,54,1],
-            [4,110,92,0,0,37.6,0.191,30,0],[10,168,74,0,0,38.0,0.537,34,1],
-            [10,139,80,0,0,27.1,1.441,57,0],[1,189,60,23,846,30.1,0.398,59,1],
-            [5,166,72,19,175,25.8,0.587,51,1],[7,100,0,0,0,30.0,0.484,32,1],
-            [0,118,84,47,230,45.8,0.551,31,1],[7,107,74,0,0,29.6,0.254,31,1],
-            [1,103,30,38,83,43.3,0.183,33,0],[1,115,70,30,96,34.6,0.529,32,1],
-        ]
-        df = pd.DataFrame(data, columns=cols)
+
+        response = requests.get(url, timeout=20)
+        response.raise_for_status()
+        from io import StringIO
+
+        df = pd.read_csv(StringIO(response.text), header=None, names=FEATURE_NAMES + ["Outcome"])
+        if len(df) < 100:
+            raise ValueError("Downloaded dataset is unexpectedly small.")
         df.to_csv(DATA_PATH, index=False)
         return df
+    except Exception as exc:
+        raise RuntimeError(
+            "Could not load the Pima dataset. Place pima_diabetes.csv in the project "
+            "root or risk_prediction/models/, or check the network connection. "
+            "Training on a small hardcoded fallback dataset is disabled."
+        ) from exc
+
+
+def _clean_dataset(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.Series]:
+    """Validate labels/features and convert clinically implausible zero placeholders to NaN."""
+    missing = set(FEATURE_NAMES + ["Outcome"]) - set(df.columns)
+    if missing:
+        raise ValueError(f"Dataset is missing required columns: {sorted(missing)}")
+
+    clean = df[FEATURE_NAMES + ["Outcome"]].copy()
+    for col in FEATURE_NAMES + ["Outcome"]:
+        clean[col] = pd.to_numeric(clean[col], errors="coerce")
+
+    clean = clean.dropna(subset=["Outcome"])
+    clean = clean[clean["Outcome"].isin([0, 1])]
+    if clean.empty:
+        raise ValueError("Dataset has no valid binary Outcome labels.")
+
+    clean[ZERO_AS_MISSING] = clean[ZERO_AS_MISSING].replace(0, np.nan)
+    X = clean[FEATURE_NAMES].replace([np.inf, -np.inf], np.nan)
+    y = clean["Outcome"].astype(int)
+    return X, y
+
+
+def _safe_float(value: Any, default: float | None = None) -> float:
+    """Convert a value to float; reject invalid values unless a default is explicit."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        if default is not None:
+            return float(default)
+        raise ValueError("A numeric value is required.")
+    try:
+        result = float(str(value).strip())
+    except (ValueError, TypeError) as exc:
+        if default is not None:
+            return float(default)
+        raise ValueError(f"Expected a numeric value, got {value!r}.") from exc
+    if not np.isfinite(result):
+        raise ValueError("NaN and infinite values are not valid patient inputs.")
+    return result
+
+
+def _validate_patient_params(patient_params: dict) -> dict[str, float]:
+    if not isinstance(patient_params, dict):
+        raise TypeError("patient_params must be a dictionary.")
+
+    unknown = set(patient_params) - set(FEATURE_NAMES)
+    if unknown:
+        raise ValueError(f"Unknown patient feature(s): {sorted(unknown)}")
+
+    cleaned: dict[str, float] = {}
+    for feature, raw in patient_params.items():
+        # Missing features are left out and imputed by the training-fitted imputer.
+        if raw is None or (isinstance(raw, str) and not raw.strip()):
+            continue
+        value = _safe_float(raw)
+        low, high = FEATURE_BOUNDS[feature]
+        if feature in ZERO_AS_MISSING and value == 0:
+            # Common Pima dataset convention: zero means unavailable for these measures.
+            cleaned[feature] = np.nan
+            continue
+        if not low <= value <= high:
+            raise ValueError(
+                f"{feature} must be between {low} and {high}; received {value}."
+            )
+        cleaned[feature] = value
+    return cleaned
+
+
+def _get_feature_vector(patient_params: dict) -> np.ndarray:
+    """Return a validated raw feature row; missing measurements remain NaN."""
+    cleaned = _validate_patient_params(patient_params)
+    values = [cleaned.get(feature, np.nan) for feature in FEATURE_NAMES]
+    return np.asarray(values, dtype=float).reshape(1, -1)
 
 
 def train_model():
-    from xgboost import XGBClassifier
+    """Train and save the model. Imputer is fitted on training data only."""
+    from sklearn.impute import SimpleImputer
+    from sklearn.metrics import (
+        accuracy_score,
+        average_precision_score,
+        confusion_matrix,
+        f1_score,
+        precision_score,
+        recall_score,
+        roc_auc_score,
+    )
     from sklearn.model_selection import train_test_split
     from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics import accuracy_score, roc_auc_score
+    from xgboost import XGBClassifier
 
     df = download_pima_dataset()
-
-    zero_cols = ["Glucose","BloodPressure","SkinThickness","Insulin","BMI"]
-    df[zero_cols] = df[zero_cols].replace(0, np.nan)
-    df[zero_cols] = df[zero_cols].fillna(df[zero_cols].median())
-
-    X = df[FEATURE_NAMES].values
-    y = df["Outcome"].values
+    X, y = _clean_dataset(df)
+    if y.nunique() != 2 or y.value_counts().min() < 2:
+        raise ValueError("Training requires at least two examples of each outcome class.")
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.20, random_state=42, stratify=y
     )
 
-    scaler     = StandardScaler()
-    X_train_sc = scaler.fit_transform(X_train)
-    X_test_sc  = scaler.transform(X_test)
+    imputer = SimpleImputer(strategy="median")
+    X_train_imp = imputer.fit_transform(X_train)
+    X_test_imp = imputer.transform(X_test)
+
+    # Kept for compatibility with the existing model/scaler interface.
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train_imp)
+    X_test_scaled = scaler.transform(X_test_imp)
 
     model = XGBClassifier(
-        n_estimators=200, max_depth=4, learning_rate=0.05,
-        subsample=0.8, colsample_bytree=0.8,
-        eval_metric="logloss", random_state=42, verbosity=0,
+        n_estimators=200,
+        max_depth=4,
+        learning_rate=0.05,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        eval_metric="logloss",
+        random_state=42,
+        verbosity=0,
     )
-    model.fit(X_train_sc, y_train,
-              eval_set=[(X_test_sc, y_test)], verbose=False)
+    model.fit(X_train_scaled, y_train)
 
-    acc = round(accuracy_score(y_test, model.predict(X_test_sc)), 4)
-    auc = round(roc_auc_score(y_test, model.predict_proba(X_test_sc)[:,1]), 4)
+    probabilities = model.predict_proba(X_test_scaled)[:, 1]
+    predictions = (probabilities >= CLASSIFICATION_THRESHOLD).astype(int)
+    tn, fp, fn, tp = confusion_matrix(y_test, predictions, labels=[0, 1]).ravel()
 
-    with open(MODEL_PATH,  "wb") as f: pickle.dump(model,  f)
-    with open(SCALER_PATH, "wb") as f: pickle.dump(scaler, f)
+    metrics = {
+        "accuracy": round(float(accuracy_score(y_test, predictions)), 4),
+        "precision": round(float(precision_score(y_test, predictions, zero_division=0)), 4),
+        "recall_sensitivity": round(float(recall_score(y_test, predictions, zero_division=0)), 4),
+        "f1": round(float(f1_score(y_test, predictions, zero_division=0)), 4),
+        "specificity": round(float(tn / (tn + fp)) if (tn + fp) else 0.0, 4),
+        "roc_auc": round(float(roc_auc_score(y_test, probabilities)), 4),
+        "pr_auc": round(float(average_precision_score(y_test, probabilities)), 4),
+        "confusion_matrix": {"tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp)},
+        "test_size": int(len(y_test)),
+        "classification_threshold": CLASSIFICATION_THRESHOLD,
+        "note": "Single stratified holdout; not clinical validation.",
+    }
 
-    print(f"Model trained — Accuracy: {acc}  ROC-AUC: {auc}")
-    return model, scaler, {"accuracy": acc, "roc_auc": auc}
+    with MODEL_PATH.open("wb") as f:
+        pickle.dump(model, f)
+    with SCALER_PATH.open("wb") as f:
+        pickle.dump(scaler, f)
+    with IMPUTER_PATH.open("wb") as f:
+        pickle.dump(imputer, f)
+
+    print(f"Model trained. Holdout metrics: {metrics}")
+    return model, scaler, metrics
 
 
 def load_or_train():
-    if MODEL_PATH.exists() and SCALER_PATH.exists():
-        with open(MODEL_PATH,  "rb") as f: model  = pickle.load(f)
-        with open(SCALER_PATH, "rb") as f: scaler = pickle.load(f)
-        return model, scaler
-    print("No saved model — training now...")
+    """Load compatible saved artifacts or train a new model."""
+    artifacts_exist = MODEL_PATH.exists() and SCALER_PATH.exists() and IMPUTER_PATH.exists()
+    if artifacts_exist:
+        try:
+            with MODEL_PATH.open("rb") as f:
+                model = pickle.load(f)
+            with SCALER_PATH.open("rb") as f:
+                scaler = pickle.load(f)
+            # Ensure old or incompatible artifacts are not silently used.
+            with IMPUTER_PATH.open("rb") as f:
+                pickle.load(f)
+            return model, scaler
+        except Exception as exc:
+            warnings.warn(f"Saved model artifacts could not be loaded ({exc}); retraining.")
+    print("Compatible saved model artifacts not found; training model...")
     model, scaler, _ = train_model()
     return model, scaler
 
 
-def _get_feature_vector(patient_params: dict) -> np.ndarray:
-    """Safely build feature vector with float conversion."""
-    df_ref    = download_pima_dataset()
-    zero_cols = ["Glucose","BloodPressure","SkinThickness","Insulin","BMI"]
-    df_ref[zero_cols] = df_ref[zero_cols].replace(0, np.nan)
-    medians   = df_ref[FEATURE_NAMES].median()
-
-    values = []
-    for f in FEATURE_NAMES:
-        raw     = patient_params.get(f, medians[f])
-        default = float(medians[f])
-        values.append(_safe_float(raw, default))
-
-    return np.array(values).reshape(1, -1)
+def _load_imputer():
+    if not IMPUTER_PATH.exists():
+        # This also creates all compatible artifacts.
+        load_or_train()
+    with IMPUTER_PATH.open("rb") as f:
+        return pickle.load(f)
 
 
-# ── Module 102: Risk Prediction ───────────────────────────────────────────────
+def _transform_patient(patient_params: dict, scaler=None) -> tuple[np.ndarray, np.ndarray]:
+    
+    raw_values = _get_feature_vector(patient_params)
+    raw = pd.DataFrame(raw_values, columns=FEATURE_NAMES)
+    imputer = _load_imputer()
+    imputed = imputer.transform(raw)
+    if scaler is None:
+        _, scaler = load_or_train()
+    return raw, scaler.transform(imputed)
+
 
 def predict_risk(patient_params: dict) -> dict:
-    """Patent Module 102 — XGBoost diabetes risk scorer."""
+    """Return a model score and category; this is not a medical diagnosis."""
     model, scaler = load_or_train()
-    X      = _get_feature_vector(patient_params)
-    X_sc   = scaler.transform(X)
+    raw, X_scaled = _transform_patient(patient_params, scaler)
+    risk_score = float(model.predict_proba(X_scaled)[0, 1])
+    prediction = int(risk_score >= CLASSIFICATION_THRESHOLD)
 
-    risk_score = float(model.predict_proba(X_sc)[0, 1])
-    prediction = int(model.predict(X_sc)[0])
-
-    risk_category = "Unknown"
-    risk_level    = "unknown"
-    risk_color    = "#6c757d"
-    for (lo, hi), (cat, lvl, col) in RISK_THRESHOLDS.items():
+    risk_category, risk_level, risk_color = "Unknown", "unknown", "#6c757d"
+    for (lo, hi), (category, level, color) in RISK_THRESHOLDS.items():
         if lo <= risk_score < hi:
-            risk_category = cat
-            risk_level    = lvl
-            risk_color    = col
+            risk_category, risk_level, risk_color = category, level, color
             break
 
+    # Return the actual imputed model inputs so the API/UI can show what was used.
+    imputed = _load_imputer().transform(raw)
+    feature_values = dict(zip(FEATURE_NAMES, imputed[0].astype(float).tolist()))
     return {
-        "risk_score":     round(risk_score, 4),
-        "risk_category":  risk_category,
-        "risk_level":     risk_level,
-        "risk_color":     risk_color,
-        "prediction":     prediction,
-        "feature_values": dict(zip(FEATURE_NAMES,
-                           _get_feature_vector(patient_params).flatten().tolist())),
+        "risk_score": round(risk_score, 4),
+        "risk_category": risk_category,
+        "risk_level": risk_level,
+        "risk_color": risk_color,
+        "prediction": prediction,
+        "classification_threshold": CLASSIFICATION_THRESHOLD,
+        "feature_values": feature_values,
+        "disclaimer": "Educational estimate only; not a diagnosis or a substitute for clinical assessment.",
     }
 
 
-# ── Module 103: SHAP Feature Explanation ─────────────────────────────────────
 
 def explain_features(patient_params: dict, top_n: int = 4) -> dict:
-    """Patent Module 103 — SHAP TreeExplainer feature contributions."""
-    import shap
+    """Explain model predictions using XGBoost's native TreeSHAP contributions."""
+    import xgboost as xgb
+
+    if top_n < 1:
+        raise ValueError("top_n must be at least 1.")
 
     model, scaler = load_or_train()
-    X    = _get_feature_vector(patient_params)
-    X_sc = scaler.transform(X)
+    raw, X_scaled = _transform_patient(patient_params, scaler)
 
-    explainer  = shap.TreeExplainer(model)
-    shap_vals  = explainer.shap_values(X_sc)[0]
-    base_value = float(explainer.expected_value)
+    # Native XGBoost TreeSHAP avoids SHAP-version parsing incompatibilities.
+    booster = model.get_booster()
+    dmatrix = xgb.DMatrix(X_scaled)
+    contributions = booster.predict(dmatrix, pred_contribs=True)
+
+    contributions = np.asarray(contributions)
+    if contributions.ndim != 2 or contributions.shape[1] != len(FEATURE_NAMES) + 1:
+        raise RuntimeError(
+            f"Unexpected TreeSHAP output shape: {contributions.shape}"
+        )
+
+    # The last column is the base value; the others are feature contributions.
+    shap_values = contributions[0, :-1]
+    base_value = float(contributions[0, -1])
+
+    imputed = _load_imputer().transform(raw)[0]
+    actual_values = dict(zip(FEATURE_NAMES, imputed.astype(float).tolist()))
 
     shap_dict = {
-        feat: round(float(shap_vals[i]), 4)
-        for i, feat in enumerate(FEATURE_NAMES)
+        feature: round(float(shap_values[i]), 4)
+        for i, feature in enumerate(FEATURE_NAMES)
     }
 
-    sorted_feats = sorted(shap_dict.items(), key=lambda x: abs(x[1]), reverse=True)
-    top_features = sorted_feats[:top_n]
+    sorted_features = sorted(
+        shap_dict.items(),
+        key=lambda item: abs(item[1]),
+        reverse=True,
+    )
+    top_features = sorted_features[:min(top_n, len(sorted_features))]
 
+    feature_items = []
     lines = []
-    for feat, val in top_features:
-        direction = "increases" if val > 0 else "decreases"
-        display   = FEATURE_DISPLAY.get(feat, feat)
-        actual    = patient_params.get(feat, "N/A")
-        lines.append(f"{display} = {actual} {direction} risk (SHAP: {val:+.3f})")
-    explanation = "; ".join(lines)
+
+    for feature, contribution in top_features:
+        direction = "increases" if contribution > 0 else "decreases"
+        display = FEATURE_DISPLAY.get(feature, feature)
+        actual = actual_values[feature]
+
+        feature_items.append({
+            "feature": feature,
+            "display": display,
+            "shap_value": contribution,
+            "direction": direction,
+            "actual": actual,
+        })
+        lines.append(
+            f"{display} = {actual:g} {direction} the model score "
+            f"(TreeSHAP: {contribution:+.3f})"
+        )
 
     return {
-        "shap_values":  shap_dict,
-        "top_features": [
-            {
-                "feature":    f,
-                "display":    FEATURE_DISPLAY.get(f, f),
-                "shap_value": v,
-                "direction":  "increases" if v > 0 else "decreases",
-                "actual":     patient_params.get(f, "N/A"),
-            }
-            for f, v in top_features
-        ],
-        "base_value":   round(base_value, 4),
-        "explanation":  explanation,
+        "shap_values": shap_dict,
+        "top_features": feature_items,
+        "base_value": round(base_value, 4),
+        "explanation": "; ".join(lines),
+        "disclaimer": (
+            "Feature contributions explain this model's score, not causal "
+            "effects or a medical diagnosis."
+        ),
     }
 
 
-# ── Module 104: Patient-Specific Query Generation ────────────────────────────
 
 def generate_patient_query(
-    user_query:     str,
-    risk_result:    dict,
-    shap_result:    dict,
+    user_query: str,
+    risk_result: dict,
+    shap_result: dict,
     patient_params: dict,
 ) -> str:
-    """Patent Module 104 — Patient-specific retrieval query builder."""
-    risk_category = risk_result["risk_category"]
-    risk_score    = risk_result["risk_score"]
+    """Build a patient-specific retrieval query without claiming a diagnosis."""
+    risk_category = risk_result.get("risk_category", "Unknown")
+    risk_score = risk_result.get("risk_score")
+    top_feature_strings = []
+    for item in shap_result.get("top_features", []):
+        feature = item.get("feature")
+        display = item.get("display", feature)
+        value = patient_params.get(feature, item.get("actual", "not provided"))
+        top_feature_strings.append(f"{display}: {value}")
 
-    top_feat_strings = []
-    for item in shap_result["top_features"]:
-        feat = item["feature"]
-        val  = patient_params.get(feat, "N/A")
-        disp = item["display"]
-        top_feat_strings.append(f"{disp}: {val}")
-
-    clinical_context = ", ".join(top_feat_strings)
+    context = ", ".join(top_feature_strings) if top_feature_strings else "No key features available"
+    score_text = f"{risk_score:.2f}" if isinstance(risk_score, (int, float)) else "unavailable"
     return (
-        f"{user_query} "
-        f"[Patient: {risk_category} (score={risk_score:.2f}); "
-        f"Key parameters: {clinical_context}]"
+        f"{user_query} [Model-estimated category: {risk_category} "
+        f"(score={score_text}; not a diagnosis); "
+        f"available key parameters: {context}]"
     )
 
 
-# ── Full pipeline: 102 + 103 + 104 ───────────────────────────────────────────
-
 def run_patient_pipeline(
-    user_query:     str,
+    user_query: str,
     patient_params: dict,
-    top_shap:       int = 4,
+    top_shap: int = 4,
 ) -> dict:
-    """Run all three patent modules in sequence."""
-    # Ensure all values are clean floats
-    clean_params = {}
-    for k, v in patient_params.items():
-        clean_params[k] = _safe_float(v, 0.0)
-
-    risk_result   = predict_risk(clean_params)
-    shap_result   = explain_features(clean_params, top_n=top_shap)
+    """Run risk prediction, explanation, and retrieval-query generation."""
+    if not isinstance(user_query, str) or not user_query.strip():
+        raise ValueError("user_query must be a non-empty string.")
+    # Validate once so invalid values fail clearly rather than becoming zero.
+    clean_params = _validate_patient_params(patient_params)
+    risk_result = predict_risk(clean_params)
+    shap_result = explain_features(clean_params, top_n=top_shap)
     patient_query = generate_patient_query(
         user_query, risk_result, shap_result, clean_params
     )
     return {
-        "original_query":         user_query,
+        "original_query": user_query,
         "patient_specific_query": patient_query,
-        "risk_result":            risk_result,
-        "shap_result":            shap_result,
+        "risk_result": risk_result,
+        "shap_result": shap_result,
     }
 
-
-# ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     print("Training XGBoost model...")
-    train_model()
-
-    patient = {
-        "Pregnancies": 2, "Glucose": 148, "BloodPressure": 72,
-        "SkinThickness": 35, "Insulin": 0, "BMI": 33.6,
-        "DiabetesPedigreeFunction": 0.627, "Age": 50,
+    _, _, metrics = train_model()
+    print("Holdout metrics:", metrics)
+    sample_patient = {
+        "Pregnancies": 2,
+        "Glucose": 148,
+        "BloodPressure": 72,
+        "SkinThickness": 35,
+        "Insulin": None,
+        "BMI": 33.6,
+        "DiabetesPedigreeFunction": 0.627,
+        "Age": 50,
     }
-
     result = run_patient_pipeline(
-        user_query="What medications are recommended for my diabetes?",
-        patient_params=patient,
+        user_query="What lifestyle factors should I discuss with my clinician?",
+        patient_params=sample_patient,
     )
-
-    print(f"\nOriginal Query  : {result['original_query']}")
-    print(f"Enriched Query  : {result['patient_specific_query']}")
-    print(f"Risk Score      : {result['risk_result']['risk_score']}")
-    print(f"Risk Category   : {result['risk_result']['risk_category']}")
-    print(f"\nTop SHAP Features:")
-    for item in result["shap_result"]["top_features"]:
-        print(f"  {item['display']}: SHAP = {item['shap_value']:+.4f} ({item['direction']} risk)")
+    print("Risk result:", result["risk_result"])
+    print("Top SHAP features:", result["shap_result"]["top_features"])
