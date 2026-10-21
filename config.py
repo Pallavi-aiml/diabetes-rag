@@ -21,24 +21,29 @@ EMBEDDING_MODEL = "microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract"
 EMBEDDING_BATCH_SIZE = 32
 
 # Chunking
-CHUNK_SIZE = 400
-CHUNK_OVERLAP = 50
+CHUNK_SIZE = 800
+CHUNK_OVERLAP = 100
 
 # Retrieval
 TOP_K_RETRIEVE = 15
 TOP_K_RERANK = 5
 RERANKER_MODEL = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+MIN_QUERY_RELEVANCE = 0.20
+MIN_RERANK_SCORE = -2.0
 
 # Evidence verification
-NLI_MODEL = "facebook/bart-large-mnli"
+NLI_MODEL = "cross-encoder/nli-deberta-v3-small"
 FAITHFULNESS_THRESHOLD = 0.6
+ABSTAIN_FAITHFULNESS_THRESHOLD = 0.15
 CONTRADICTION_THRESHOLD = 0.6
+NLI_MAX_EVIDENCE_UNITS = 8
+FAITHFULNESS_DEBUG = os.getenv("FAITHFULNESS_DEBUG", "").strip() in {"1", "true", "True"}
 
 # LLM
-#LOCAL_LLM_MODEL = "llama3"
-#LOCAL_LLM_MODEL = "llama3-70b-8192"
-LOCAL_LLM_MODEL = "qwen/qwen3.8-27b"
-OPENAI_MODEL = "gpt-4o"
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
+LOCAL_LLM_MODEL = GROQ_MODEL
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o")
 LLM_TEMPERATURE = 0.1
 LLM_MAX_TOKENS = 1024
 

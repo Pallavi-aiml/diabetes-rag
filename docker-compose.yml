@@ -10,6 +10,7 @@ services:
       - ./data:/app/data
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
       - PUBMED_EMAIL=${PUBMED_EMAIL}
       - CHROMA_DB_PATH=/app/data/chroma_db
     command: uvicorn api.app:app --host 0.0.0.0 --port 8000

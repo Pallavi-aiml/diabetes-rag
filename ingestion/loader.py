@@ -61,14 +61,12 @@ def detect_source_type(pub_types: list, abstract: str) -> str:
     and abstract text keywords.
 
     Priority order:
-      1. RCT / Clinical Trial  → highest evidence
+      1. Randomized trials (not every PubMed "clinical trial" tag)
       2. Systematic Review / Meta-analysis
       3. Review articles
       4. Case reports
       5. Cohort / Observational (keyword-based)
-      6. Default: cohort_study (NOT expert_opinion)
-
-    This dramatically improves credibility scores vs defaulting to expert_opinion.
+      6. Default: unknown
     """
     pub_types_text = " ".join(pub_types).lower()
     abstract_lower = abstract.lower()
@@ -77,11 +75,6 @@ def detect_source_type(pub_types: list, abstract: str) -> str:
     if any(x in pub_types_text for x in [
         "randomized controlled trial",
         "randomised controlled trial",
-        "clinical trial, phase iii",
-        "clinical trial, phase ii",
-        "clinical trial, phase i",
-        "clinical trial",
-        "controlled clinical trial",
     ]):
         return "rct"
 
@@ -93,8 +86,7 @@ def detect_source_type(pub_types: list, abstract: str) -> str:
         return "systematic_review"
 
     if "review" in pub_types_text:
-        # Review articles are similar to cohort — moderate evidence
-        return "cohort_study"
+        return "unknown"
 
     if any(x in pub_types_text for x in [
         "case reports",
@@ -162,11 +154,7 @@ def detect_source_type(pub_types: list, abstract: str) -> str:
     ]):
         return "case_report"
 
-    # ── Default: cohort_study (NOT expert_opinion) ─────────────────────────
-    # This is the key improvement — most PubMed abstracts describe
-    # observational or intervention studies, not expert opinions.
-    # Defaulting to cohort_study gives score 3/5 instead of 1/5.
-    return "cohort_study"
+    return "unknown"
 
 
 def parse_pubmed_xml(xml_text: str) -> list:

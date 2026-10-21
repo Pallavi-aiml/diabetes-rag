@@ -20,12 +20,21 @@ import chromadb
 
 sys.path.append(str(Path(__file__).parent.parent))
 from config import (
-    TOP_K_RETRIEVE, TOP_K_RERANK, RERANKER_MODEL
+    TOP_K_RETRIEVE, TOP_K_RERANK, RERANKER_MODEL,
+    MIN_QUERY_RELEVANCE, MIN_RERANK_SCORE,
 )
 from ingestion.embedder import embed_query
 
-print(f"Loading reranker: {RERANKER_MODEL}")
-reranker = CrossEncoder(RERANKER_MODEL, max_length=512)
+_reranker = None
+
+
+def get_reranker() -> CrossEncoder:
+    """Load the cross-encoder once, on first rerank call."""
+    global _reranker
+    if _reranker is None:
+        print(f"Loading reranker: {RERANKER_MODEL}")
+        _reranker = CrossEncoder(RERANKER_MODEL, max_length=512)
+    return _reranker
 
 DIABETES_KEYWORDS = [
     "diabetes", "diabetic", "diabetics", "glucose", "glycaemic", "glycemic",
@@ -181,7 +190,7 @@ def rerank(query: str, docs: list, top_k: int = TOP_K_RERANK) -> list:
     if not docs or top_k <= 0:
         return []
     pairs = [(query, str(doc.get("text", ""))[:1800]) for doc in docs]
-    scores = reranker.predict(pairs)
+    scores = get_reranker().predict(pairs)
     ranked = sorted(zip(scores, docs), key=lambda item: float(item[0]), reverse=True)
     result = []
     for score, doc in ranked[:top_k]:
@@ -225,7 +234,12 @@ def _query_specific_score(query: str, chunk: dict) -> float:
     return round(score, 5)
 
 
-def filter_relevant(chunks: list, query: str = "", min_rerank_score: float = -5.0) -> list:
+def filter_relevant(
+    chunks: list,
+    query: str = "",
+    min_rerank_score: float = MIN_RERANK_SCORE,
+    min_query_relevance: float = MIN_QUERY_RELEVANCE,
+) -> list:
     """
     Filter low-ranking and clearly off-topic chunks. Does not reintroduce
     off-topic chunks through a fallback. If none pass, returns [].
@@ -242,6 +256,8 @@ def filter_relevant(chunks: list, query: str = "", min_rerank_score: float = -5.
             continue
         copied = dict(chunk)
         copied["query_relevance_score"] = _query_specific_score(query, copied) if query else 0.0
+        if query and copied["query_relevance_score"] < min_query_relevance:
+            continue
         relevant.append(copied)
     return relevant
 
@@ -270,7 +286,15 @@ def boost_quality_sources(chunks: list) -> list:
     return sorted(chunks, key=final_score, reverse=True)
 
 
-_bm25_cache = {"index": None, "chunks": None}
+_bm25_cache = {"index": None, "fingerprint": None}
+
+
+def _corpus_fingerprint(chunks: list) -> tuple:
+    """Identify a chunk list without relying on object identity alone."""
+    if not chunks:
+        return (0, "")
+    ids = tuple(str(chunk.get("chunk_id", i)) for i, chunk in enumerate(chunks))
+    return (len(ids), hash(ids))
 
 
 def hybrid_retrieve(
@@ -288,25 +312,21 @@ def hybrid_retrieve(
         dense_docs = dense_retrieve(query, collection, n=TOP_K_RETRIEVE)
         return boost_quality_sources(filter_relevant(rerank(query, dense_docs, top_k=top_k), query))[:top_k]
 
-    if _bm25_cache["chunks"] is not all_chunks or _bm25_cache["index"] is None:
+    fingerprint = _corpus_fingerprint(all_chunks)
+    if _bm25_cache["fingerprint"] != fingerprint or _bm25_cache["index"] is None:
         print("Building BM25 index…")
         _bm25_cache["index"] = build_bm25_index(all_chunks)
-        _bm25_cache["chunks"] = all_chunks
+        _bm25_cache["fingerprint"] = fingerprint
 
     dense_docs = dense_retrieve(query, collection, n=TOP_K_RETRIEVE)
     bm25_docs = bm25_retrieve(query, _bm25_cache["index"], all_chunks, n=TOP_K_RETRIEVE)
     fused = reciprocal_rank_fusion([dense_docs, bm25_docs])
-    fused = [
-        chunk for chunk in fused
-        if chunk.get("source") != "PubMed:42811510"
-    ]
     reranked = rerank(
         query,
         fused[:max(20, top_k + 3)],
         top_k=min(len(fused), max(top_k * 3, top_k + 3))
     )
     relevant = filter_relevant(reranked, query=query)
-
 
     # Crucially, do not fallback to off-topic chunks when relevance filtering empties results.
     boosted = boost_quality_sources(relevant)

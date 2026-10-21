@@ -190,6 +190,13 @@ class TestConfidenceAggregator:
         report = aggregate_confidence(verified_chunks, "Answer text here.")
         assert report["grade"] in ("A", "B", "C", "D")
 
+    def test_low_faithfulness_cannot_be_rescued_by_prestige(self, verified_chunks):
+        from evidence.verifier import aggregate_confidence
+        with patch("evidence.verifier.check_faithfulness_multi", return_value=0.20):
+            report = aggregate_confidence(verified_chunks, "Unsupported claim.")
+        assert report["faithfulness"] == 0.20
+        assert report["confidence"] <= 0.20 + 1e-6
+
 
 # ===========================================================================
 # CHUNKER TESTS
@@ -235,6 +242,20 @@ class TestChunker:
 # PROMPT BUILDER TESTS
 # ===========================================================================
 
+class TestOutOfScope:
+    def test_guaranteed_claim_is_out_of_scope(self):
+        from generation.generator import is_out_of_scope_query
+        assert is_out_of_scope_query(
+            "Which herbal supplement is guaranteed to prevent diabetes in every person?"
+        )
+
+    def test_clinical_question_is_in_scope(self):
+        from generation.generator import is_out_of_scope_query
+        assert not is_out_of_scope_query(
+            "What is the recommended HbA1c target for type 2 diabetes?"
+        )
+
+
 class TestPromptBuilder:
     def test_prompt_contains_question(self, verified_chunks):
         from generation.generator import build_rag_prompt
@@ -257,7 +278,7 @@ class TestPromptBuilder:
     def test_empty_chunks_handled(self):
         from generation.generator import generate_answer
         result = generate_answer("Question?", [], use_local=True)
-        assert "No relevant evidence" in result or len(result) > 0
+        assert "does not adequately answer" in result.lower()
 
 
 # ===========================================================================
@@ -288,6 +309,16 @@ class TestRRF:
         assert fused == []
 
 
+class TestRelevanceFilter:
+    def test_low_query_overlap_is_dropped(self, sample_chunks):
+        from retrieval.retriever import filter_relevant
+        weak = dict(sample_chunks[0])
+        weak["text"] = "Unrelated veterinary dentistry antimicrobial microbiology notes."
+        weak["rerank_score"] = 8.0
+        kept = filter_relevant([weak], query="What is the HbA1c target for type 2 diabetes?")
+        assert kept == []
+
+
 class TestBM25:
     def test_bm25_returns_results(self, sample_chunks):
         from retrieval.retriever import build_bm25_index, bm25_retrieve
@@ -302,6 +333,23 @@ class TestBM25:
         # The metformin chunk should appear in results
         texts = [r["text"] for r in results]
         assert any("metformin" in t.lower() for t in texts)
+
+
+class TestRelevanceFilter:
+    def test_low_lexical_overlap_is_dropped(self):
+        from retrieval.retriever import filter_relevant
+        chunks = [{
+            "text": "Diabetes mellitus is a chronic metabolic disease of glucose regulation.",
+            "journal": "Diabetes Care",
+            "rerank_score": 0.0,
+        }]
+        kept = filter_relevant(
+            chunks,
+            query="exact neighbourhood live prevalence zip code statistics today",
+            min_rerank_score=-5.0,
+            min_query_relevance=0.20,
+        )
+        assert kept == []
 
 
 # ===========================================================================
@@ -341,20 +389,21 @@ def test_client():
     app_module._collection = mock_collection
     app_module._all_chunks = [mock_chunk]
 
-    with patch("retrieval.retriever.hybrid_retrieve", return_value=[mock_chunk]):
-        with patch("evidence.verifier.verify_chunks", return_value=[mock_chunk]):
-            with patch("evidence.verifier.aggregate_confidence", return_value={
-                "confidence": 0.82,
-                "grade": "B",
-                "faithfulness": 0.78,
-                "avg_credibility": 4.5,
-                "contradictions": [],
-                "hallucination_risk": False,
-            }):
-                with patch("generation.generator.generate_answer",
-                           return_value="Metformin is first-line therapy [SOURCE 1]. ⚠️ This information is for educational purposes only."):
-                    client = TestClient(app_module.app)
-                    yield client
+    with patch("api.app.hybrid_retrieve", return_value=[mock_chunk]):
+        with patch("api.app.verify_chunks", return_value=[mock_chunk]):
+            with patch("api.app.find_contradictions", return_value=[]):
+                with patch("api.app.aggregate_confidence", return_value={
+                    "confidence": 0.82,
+                    "grade": "B",
+                    "faithfulness": 0.78,
+                    "avg_credibility": 4.5,
+                    "contradictions": [],
+                    "hallucination_risk": False,
+                }):
+                    with patch("api.app.generate_answer",
+                               return_value="Metformin is first-line therapy [SOURCE 1]. ⚠️ This information is for educational purposes only."):
+                        client = TestClient(app_module.app)
+                        yield client
 
 
 class TestHealthEndpoint:
@@ -415,6 +464,15 @@ class TestQueryEndpoint:
         resp = test_client.post("/query", json={"question": "What is the HbA1c target?"})
         data = resp.json()
         assert len(data["disclaimer"]) > 0
+
+    def test_out_of_scope_query_abstains(self, test_client):
+        resp = test_client.post("/query", json={
+            "question": "Which herbal supplement is guaranteed to prevent diabetes in every person?",
+        })
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["abstained"] is True
+        assert data["confidence"] == 0.0
 
 
 class TestFeedbackEndpoint:

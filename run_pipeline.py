@@ -12,6 +12,7 @@ Usage:
 
 import sys
 import argparse
+import os
 import time
 from pathlib import Path
 
@@ -71,8 +72,9 @@ def step_embed():
     print(f"Building ChromaDB store for {len(chunks)} chunks…")
     build_chroma_store(chunks)
 
-    print(f"\nBuilding FAISS index…")
-    build_faiss_index(chunks)
+    if os.environ.get("BUILD_FAISS") == "1":
+        print(f"\nBuilding FAISS index…")
+        build_faiss_index(chunks)
     print("Vector stores ready.")
 
 
@@ -117,7 +119,11 @@ def main():
     parser.add_argument("--chunk",      action="store_true", help="Run chunking only")
     parser.add_argument("--embed",      action="store_true", help="Run embedding only")
     parser.add_argument("--test-query", action="store_true", help="Run smoke test")
+    parser.add_argument("--faiss", action="store_true", help="Also build the unused FAISS sidecar index")
     args = parser.parse_args()
+
+    if args.faiss:
+        os.environ["BUILD_FAISS"] = "1"
 
     if args.all:
         step_ingest()

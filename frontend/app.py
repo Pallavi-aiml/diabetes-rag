@@ -5,11 +5,13 @@ Includes: XGBoost Risk Prediction (102) + SHAP Explanation (103)
           + Patient Query Generation (104) + RAG pipeline (105-115)
 """
 
+import os
+
 import streamlit as st
 import requests
 import pandas as pd
 
-API_URL = "http://localhost:8000"
+API_URL = os.getenv("API_URL", "http://localhost:8000").rstrip("/")
 
 st.set_page_config(
     page_title="Diabetes Care Assistant",
@@ -104,9 +106,9 @@ with st.expander(
     expanded=False
 ):
     st.caption(
-        "Providing patient data activates **Module 102** (XGBoost risk prediction), "
-        "**Module 103** (SHAP feature explanation), and **Module 104** "
-        "(patient-specific query generation)."
+        "Providing patient data activates risk estimation and SHAP explanations. "
+        "Zero glucose, blood pressure, BMI, insulin, or skin thickness is treated "
+        "as missing and imputed. Zero pregnancies is a valid value."
     )
 
     col1, col2, col3, col4 = st.columns(4)
@@ -154,19 +156,20 @@ st.divider()
 
 # ── Query execution ────────────────────────────────────────────────────────────
 if submit and query:
-    # Build patient params
     patient_params = None
     if use_patient:
-        params = {}
-        if glucose > 0: params["Glucose"]                   = glucose
-        if bmi     > 0: params["BMI"]                       = bmi
-        if bp      > 0: params["BloodPressure"]             = bp
-        if age     > 0: params["Age"]                       = age
-        if insulin > 0: params["Insulin"]                   = insulin
-        if preg    > 0: params["Pregnancies"]               = preg
-        if skin    > 0: params["SkinThickness"]             = skin
-        if dpf     > 0: params["DiabetesPedigreeFunction"]  = dpf
-        if params:      patient_params = params
+        params = {
+            "Glucose": glucose,
+            "BMI": bmi,
+            "BloodPressure": bp,
+            "Insulin": insulin,
+            "Pregnancies": preg,
+            "SkinThickness": skin,
+            "DiabetesPedigreeFunction": dpf,
+        }
+        if age > 0:
+            params["Age"] = age
+        patient_params = params
 
     with st.spinner("🔍 Retrieving and verifying evidence…"):
         try:
@@ -210,8 +213,9 @@ if st.session_state.last_response:
         r1, r2, r3, r4 = st.columns(4)
         r1.metric("Risk Score",    f"{risk['risk_score']:.0%}")
         r2.metric("Category",      risk["risk_category"])
-        r3.metric("Prediction",    "Diabetic" if risk["prediction"] == 1 else "Non-Diabetic")
+        r3.metric("Threshold class", "Above 0.50" if risk["prediction"] == 1 else "Below 0.50")
         r4.metric("Model",         "XGBoost")
+        st.caption("Educational model output only; not a diagnosis.")
 
         color = risk.get("risk_color", "#6c757d")
         st.markdown(
@@ -227,7 +231,7 @@ if st.session_state.last_response:
     if data.get("shap_result"):
         shap = data["shap_result"]
         st.subheader("📊 Module 103 — SHAP Feature Explanation")
-        st.caption("Features contributing most to the diabetes risk prediction")
+        st.caption("Features contributing most to this model's score, not a medical diagnosis")
 
         # Bar chart
         shap_df = pd.DataFrame([
@@ -243,11 +247,11 @@ if st.session_state.last_response:
         # Feature table
         for item in shap["top_features"]:
             val  = item["shap_value"]
-            sign = "🔴 increases" if val > 0 else "🟢 decreases"
+            sign = f"{item.get('direction', 'changes')} the model score"
             cls  = "shap-positive" if val > 0 else "shap-negative"
             st.markdown(
                 f"**{item['display']}** = `{item['actual']}`  →  "
-                f"<span class='{cls}'>{sign} risk</span>  "
+                f"<span class='{cls}'>{sign}</span>  "
                 f"(SHAP: {val:+.4f})",
                 unsafe_allow_html=True,
             )
@@ -257,10 +261,10 @@ if st.session_state.last_response:
 
     # ── Module 104: Enriched Query ─────────────────────────────────────────────
     if data.get("patient_specific_query"):
-        st.subheader("🔗 Module 104 — Patient-Specific Query")
+        st.subheader("🔗 Module 104 — Patient context")
         st.markdown(
             f"<div class='enriched-query'>"
-            f"<strong>Enriched retrieval query:</strong><br>"
+            f"<strong>Patient context (not used as search text):</strong><br>"
             f"{data['patient_specific_query']}"
             f"</div>",
             unsafe_allow_html=True,
@@ -298,6 +302,8 @@ if st.session_state.last_response:
     )
 
     # Warnings
+    if data.get("abstained"):
+        st.info("The system abstained from a grounded clinical answer for this question.")
     if data.get("contradictions_found"):
         st.warning("⚠️ Conflicting evidence detected across retrieved sources.")
     if data.get("hallucination_risk"):

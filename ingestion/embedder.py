@@ -21,10 +21,18 @@ from config import (
     CHROMA_DB_PATH, COLLECTION_NAME, PROCESSED_DATA_PATH
 )
 
-# Load embedding model once at module level (reused across calls)
-print(f"Loading embedding model: {EMBEDDING_MODEL}")
-embed_model = SentenceTransformer(EMBEDDING_MODEL)
-EMBEDDING_DIM = embed_model.get_sentence_embedding_dimension()
+_embed_model = None
+EMBEDDING_DIM = None
+
+
+def get_embed_model() -> SentenceTransformer:
+    """Load PubMedBERT once, on first embed call."""
+    global _embed_model, EMBEDDING_DIM
+    if _embed_model is None:
+        print(f"Loading embedding model: {EMBEDDING_MODEL}")
+        _embed_model = SentenceTransformer(EMBEDDING_MODEL)
+        EMBEDDING_DIM = _embed_model.get_sentence_embedding_dimension()
+    return _embed_model
 
 
 # ---------------------------------------------------------------------------
@@ -57,7 +65,7 @@ def build_chroma_store(chunks: list[dict]) -> chromadb.Collection:
     ]
 
     print(f"Generating embeddings for {len(texts)} chunks (batch={EMBEDDING_BATCH_SIZE})…")
-    embeddings = embed_model.encode(
+    embeddings = get_embed_model().encode(
         texts,
         batch_size=EMBEDDING_BATCH_SIZE,
         show_progress_bar=True,
@@ -92,7 +100,8 @@ def build_faiss_index(chunks: list[dict]) -> faiss.Index:
     """Build a FAISS flat inner-product index from chunk embeddings."""
     texts = [c["text"] for c in chunks]
     print(f"Building FAISS index for {len(texts)} chunks…")
-    embeddings = embed_model.encode(
+    model = get_embed_model()
+    embeddings = model.encode(
         texts,
         batch_size=EMBEDDING_BATCH_SIZE,
         show_progress_bar=True,
@@ -129,7 +138,7 @@ def load_faiss_index():
 
 def embed_query(query: str) -> np.ndarray:
     """Embed a single query string, return normalized float32 vector."""
-    vec = embed_model.encode([query], normalize_embeddings=True).astype(np.float32)
+    vec = get_embed_model().encode([query], normalize_embeddings=True).astype(np.float32)
     return vec
 
 

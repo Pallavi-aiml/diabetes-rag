@@ -272,32 +272,46 @@ def train_model():
     return model, scaler, metrics
 
 
+_loaded_artifacts = None
+
+
+def load_artifacts():
+    """Load frozen model artifacts. Training is offline-only via train_model()."""
+    global _loaded_artifacts
+    if _loaded_artifacts is not None:
+        return _loaded_artifacts
+    missing = [str(path) for path in (MODEL_PATH, SCALER_PATH, IMPUTER_PATH) if not path.exists()]
+    if missing:
+        raise RuntimeError(
+            "Risk model artifacts are missing. Train offline with "
+            "`python -m risk_prediction.predictor` before serving queries. "
+            f"Missing: {missing}"
+        )
+    try:
+        with MODEL_PATH.open("rb") as f:
+            model = pickle.load(f)
+        with SCALER_PATH.open("rb") as f:
+            scaler = pickle.load(f)
+        with IMPUTER_PATH.open("rb") as f:
+            imputer = pickle.load(f)
+    except Exception as exc:
+        raise RuntimeError(
+            "Risk model artifacts could not be loaded. Retrain offline with "
+            "`python -m risk_prediction.predictor`."
+        ) from exc
+    _loaded_artifacts = (model, scaler, imputer)
+    return _loaded_artifacts
+
+
 def load_or_train():
-    """Load compatible saved artifacts or train a new model."""
-    artifacts_exist = MODEL_PATH.exists() and SCALER_PATH.exists() and IMPUTER_PATH.exists()
-    if artifacts_exist:
-        try:
-            with MODEL_PATH.open("rb") as f:
-                model = pickle.load(f)
-            with SCALER_PATH.open("rb") as f:
-                scaler = pickle.load(f)
-            # Ensure old or incompatible artifacts are not silently used.
-            with IMPUTER_PATH.open("rb") as f:
-                pickle.load(f)
-            return model, scaler
-        except Exception as exc:
-            warnings.warn(f"Saved model artifacts could not be loaded ({exc}); retraining.")
-    print("Compatible saved model artifacts not found; training model...")
-    model, scaler, _ = train_model()
+    """Load saved artifacts. Does not train during a live request."""
+    model, scaler, _ = load_artifacts()
     return model, scaler
 
 
 def _load_imputer():
-    if not IMPUTER_PATH.exists():
-        # This also creates all compatible artifacts.
-        load_or_train()
-    with IMPUTER_PATH.open("rb") as f:
-        return pickle.load(f)
+    _, _, imputer = load_artifacts()
+    return imputer
 
 
 def _transform_patient(patient_params: dict, scaler=None) -> tuple[np.ndarray, np.ndarray]:
@@ -384,7 +398,12 @@ def explain_features(patient_params: dict, top_n: int = 4) -> dict:
     lines = []
 
     for feature, contribution in top_features:
-        direction = "increases" if contribution > 0 else "decreases"
+        if contribution > 0:
+            direction = "increases"
+        elif contribution < 0:
+            direction = "decreases"
+        else:
+            direction = "neutral"
         display = FEATURE_DISPLAY.get(feature, feature)
         actual = actual_values[feature]
 

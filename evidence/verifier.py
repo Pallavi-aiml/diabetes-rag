@@ -14,18 +14,28 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 try:
-    from config import FAITHFULNESS_THRESHOLD, CONTRADICTION_THRESHOLD
+    from config import (
+        FAITHFULNESS_THRESHOLD,
+        CONTRADICTION_THRESHOLD,
+        NLI_MODEL,
+        NLI_MAX_EVIDENCE_UNITS,
+        FAITHFULNESS_DEBUG,
+        ABSTAIN_FAITHFULNESS_THRESHOLD,
+    )
 except Exception:
     FAITHFULNESS_THRESHOLD = 0.60
     CONTRADICTION_THRESHOLD = 0.50
+    NLI_MODEL = "cross-encoder/nli-deberta-v3-small"
+    NLI_MAX_EVIDENCE_UNITS = 8
+    FAITHFULNESS_DEBUG = False
+    ABSTAIN_FAITHFULNESS_THRESHOLD = 0.15
+
+NLI_MODEL_NAME = NLI_MODEL
 
 try:
     from transformers import pipeline
 except ImportError:
     pipeline = None
-
-NLI_MODEL_NAME = "cross-encoder/nli-deberta-v3-small"
-
 
 @lru_cache(maxsize=1)
 def _get_nli_pipeline():
@@ -336,7 +346,8 @@ def check_faithfulness_multi(generated_answer: str, chunks: list) -> float:
 
     sentences = [s for s in sentences if is_factual_claim(s)]
     if not sentences:
-        print("[FAITHFULNESS DEBUG] No factual sentences detected.")
+        if FAITHFULNESS_DEBUG:
+            print("[FAITHFULNESS DEBUG] No factual sentences detected.")
         return 0.0
 
     nli = _get_nli_pipeline()
@@ -353,6 +364,8 @@ def check_faithfulness_multi(generated_answer: str, chunks: list) -> float:
         )
     if not evidence_units:
         evidence_units = contexts
+
+    max_units = max(1, int(NLI_MAX_EVIDENCE_UNITS or 8))
 
     for sentence in sentences:
         sentence_score = None
@@ -371,12 +384,18 @@ def check_faithfulness_multi(generated_answer: str, chunks: list) -> float:
                 if not claim_text:
                     claim_text = sentence.strip()
 
+                ranked_units = sorted(
+                    evidence_units,
+                    key=lambda unit: _support_score(claim_text, unit),
+                    reverse=True,
+                )[:max_units]
+
                 pairs = [
                     {
                         "text": evidence[:512],
                         "text_pair": claim_text[:512],
                     }
-                    for evidence in evidence_units
+                    for evidence in ranked_units
                 ]
                 predictions = nli(
                     pairs,
@@ -388,14 +407,15 @@ def check_faithfulness_multi(generated_answer: str, chunks: list) -> float:
                     _entailment_probability(prediction, nli=nli)
                     for prediction in predictions
                 ]
-                if entailment_scores:
-                    best_index = max(
-                        range(len(entailment_scores)),
-                        key=lambda index: entailment_scores[index],
-                    )
-                    sentence_score = float(entailment_scores[best_index])
+                valid_pairs = [
+                    (unit, score)
+                    for unit, score in zip(ranked_units, entailment_scores)
+                    if score is not None
+                ]
+                if valid_pairs:
+                    sentence_score = float(max(score for _, score in valid_pairs))
                     ranked_evidence = sorted(
-                        zip(evidence_units, entailment_scores),
+                        valid_pairs,
                         key=lambda item: item[1],
                         reverse=True,
                     )
@@ -411,28 +431,29 @@ def check_faithfulness_multi(generated_answer: str, chunks: list) -> float:
             )
 
         scores.append(float(sentence_score))
-        print(
-            f"[FAITHFULNESS DEBUG] method={method} "
-            f"score={sentence_score:.4f} sentence={sentence[:180]!r}"
-        )
-
-        if sentence_score < 0.60:
-            print("\n--- LOW FAITHFULNESS DEBUG ---")
-            print("CLAIM:", sentence)
-            print(f"BEST SCORE: {sentence_score:.4f}")
-            if ranked_evidence:
-                for evidence, score in ranked_evidence[:3]:
-                    print("EVIDENCE:", evidence[:300])
-                    print(f"ENTAILMENT: {score:.4f}")
-            else:
-                print("No ranked NLI evidence available.")
-            print("--- END DEBUG ---\n")
+        if FAITHFULNESS_DEBUG:
+            print(
+                f"[FAITHFULNESS DEBUG] method={method} "
+                f"score={sentence_score:.4f} sentence={sentence[:180]!r}"
+            )
+            if sentence_score < 0.60:
+                print("\n--- LOW FAITHFULNESS DEBUG ---")
+                print("CLAIM:", sentence)
+                print(f"BEST SCORE: {sentence_score:.4f}")
+                if ranked_evidence:
+                    for evidence, score in ranked_evidence[:3]:
+                        print("EVIDENCE:", evidence[:300])
+                        print(f"ENTAILMENT: {score:.4f}")
+                else:
+                    print("No ranked NLI evidence available.")
+                print("--- END DEBUG ---\n")
 
     overall_score = sum(scores) / len(scores)
-    print(
-        f"[FAITHFULNESS DEBUG] sentences={len(scores)}, "
-        f"mean={overall_score:.4f}"
-    )
+    if FAITHFULNESS_DEBUG:
+        print(
+            f"[FAITHFULNESS DEBUG] sentences={len(scores)}, "
+            f"mean={overall_score:.4f}"
+        )
     return round(overall_score, 4)
 
 
@@ -522,14 +543,21 @@ def aggregate_confidence(verified_chunks: list, generated_answer: str) -> dict:
         key=lambda grade: GRADE_ORDER.get(grade, 0),
     )
     contradictions = find_contradictions(verified_chunks)
-    confidence = (
-        faithfulness * 0.50
-        + (avg_credibility / 5.0) * 0.40
-        + GRADE_BONUS.get(best_grade, 0.0)
-    )
+    cred_norm = min(1.0, max(0.0, avg_credibility / 5.0))
+    # Source prestige may only scale faithfulness; it cannot replace it.
+    quality = 0.85 + 0.15 * cred_norm
+    confidence = faithfulness * quality
+    if faithfulness >= float(FAITHFULNESS_THRESHOLD):
+        confidence = min(1.0, confidence + GRADE_BONUS.get(best_grade, 0.0) * 0.5)
+    else:
+        confidence = min(confidence, faithfulness)
     confidence = round(min(1.0, max(0.0, confidence)), 4)
     faithfulness_threshold = float(globals().get("FAITHFULNESS_THRESHOLD", 0.60))
-    hallucination_risk = faithfulness < faithfulness_threshold or bool(contradictions)
+    hallucination_risk = (
+        faithfulness < faithfulness_threshold
+        or faithfulness < float(ABSTAIN_FAITHFULNESS_THRESHOLD)
+        or bool(contradictions)
+    )
 
     return {
         "confidence": confidence,

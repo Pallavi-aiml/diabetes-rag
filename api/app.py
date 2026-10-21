@@ -33,12 +33,19 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import COLLECTION_NAME
+from config import COLLECTION_NAME, ABSTAIN_FAITHFULNESS_THRESHOLD
 from ingestion.embedder import get_chroma_collection
 from ingestion.chunker import load_chunks
 from retrieval.retriever import hybrid_retrieve
-from evidence.verifier import verify_chunks, aggregate_confidence
-from generation.generator import generate_answer, get_llm_name
+from evidence.verifier import verify_chunks, aggregate_confidence, find_contradictions
+from generation.generator import (
+    CONFLICT_ANSWER,
+    DISCLAIMER,
+    NO_EVIDENCE_ANSWER,
+    generate_answer,
+    get_llm_name,
+    is_out_of_scope_query,
+)
 
 
 def utc_now_iso() -> str:
@@ -138,6 +145,7 @@ class CitationItem(BaseModel):
     credibility_score: float
     source_type: str
     chunk_preview: str
+    text: str = ""
 
 
 class QueryResponse(BaseModel):
@@ -156,6 +164,7 @@ class QueryResponse(BaseModel):
     disclaimer: str
     llm_used: str
     timestamp: str
+    abstained: bool = False
 
 
 class FeedbackRequest(BaseModel):
@@ -295,6 +304,113 @@ def build_final_answer(evidence_answer: str, risk_result=None, shap_result=None)
     return "\n".join(lines)
 
 
+def _patient_dict(patient_params: PatientParams) -> dict:
+    raw = (
+        patient_params.model_dump()
+        if hasattr(patient_params, "model_dump")
+        else patient_params.dict()
+    )
+    return {key: value for key, value in raw.items() if value is not None}
+
+
+def _pack_risk(risk_result_raw, shap_result_raw):
+    risk_resp = None
+    if risk_result_raw:
+        risk_resp = RiskResult(
+            risk_score=risk_result_raw["risk_score"],
+            risk_category=risk_result_raw["risk_category"],
+            risk_level=risk_result_raw["risk_level"],
+            risk_color=risk_result_raw.get("risk_color", "#6c757d"),
+            prediction=risk_result_raw["prediction"],
+        )
+    shap_resp = None
+    if shap_result_raw:
+        shap_resp = SHAPResult(
+            top_features=[
+                SHAPFeature(
+                    feature=item["feature"],
+                    display=item["display"],
+                    shap_value=item["shap_value"],
+                    direction=item["direction"],
+                    actual=item["actual"],
+                )
+                for item in shap_result_raw.get("top_features", [])
+            ],
+            explanation=shap_result_raw.get("explanation", ""),
+            base_value=shap_result_raw.get("base_value", 0.0),
+        )
+    return risk_resp, shap_resp
+
+
+def _pack_citations(verified: list) -> list[CitationItem]:
+    citations = []
+    for index, chunk in enumerate(verified):
+        text_value = str(chunk.get("text", ""))
+        try:
+            year = int(chunk.get("year", 0) or 0)
+        except (TypeError, ValueError):
+            year = 0
+        try:
+            credibility = float(chunk.get("credibility_score", 0.0) or 0.0)
+        except (TypeError, ValueError):
+            credibility = 0.0
+        citations.append(
+            CitationItem(
+                source_num=index + 1,
+                source=str(chunk.get("source", "")),
+                journal=str(chunk.get("journal", "Unknown")),
+                year=year,
+                evidence_grade=str(chunk.get("evidence_grade", "D")),
+                credibility_score=credibility,
+                source_type=str(chunk.get("source_type", "unknown")),
+                chunk_preview=text_value[:200] + ("..." if len(text_value) > 200 else ""),
+                text=text_value[:4000],
+            )
+        )
+    return citations
+
+
+def _abstention_response(
+    req: QueryRequest,
+    enriched_query: str,
+    risk_result_raw,
+    shap_result_raw,
+    evidence_answer: str,
+    llm_used: str,
+    citations: list[CitationItem] | None = None,
+    grade: str = "D",
+    avg_credibility: float = 0.0,
+    contradictions_found: bool = False,
+):
+    risk_resp, shap_resp = _pack_risk(risk_result_raw, shap_result_raw)
+    answer = build_final_answer(
+        evidence_answer=evidence_answer,
+        risk_result=risk_result_raw,
+        shap_result=shap_result_raw,
+    )
+    return QueryResponse(
+        question=req.question,
+        patient_specific_query=(enriched_query if enriched_query != req.question else None),
+        risk_result=risk_resp,
+        shap_result=shap_resp,
+        answer=answer,
+        confidence=0.0,
+        evidence_grade=grade,
+        faithfulness=0.0,
+        avg_credibility=avg_credibility,
+        hallucination_risk=False,
+        contradictions_found=contradictions_found,
+        citations=citations or [],
+        disclaimer=(
+            "For educational information only; not a diagnosis or a substitute "
+            "for assessment by a qualified healthcare professional."
+        ),
+        llm_used=llm_used,
+        timestamp=utc_now_iso(),
+        abstained=True,
+    )
+
+
 @app.post("/query", response_model=QueryResponse)
 async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
     if _collection is None or not _all_chunks:
@@ -306,11 +422,7 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
     enriched_query = req.question
 
     if req.patient_params is not None:
-        patient_dict = {
-            key: value
-            for key, value in req.patient_params.dict().items()
-            if value is not None
-        }
+        patient_dict = _patient_dict(req.patient_params)
 
         if not patient_dict:
             raise HTTPException(
@@ -349,10 +461,23 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
                 detail="Risk prediction is temporarily unavailable. Please try again later.",
             ) from exc
 
+    # Retrieval and generation use the original question. Risk/SHAP stay structured fields.
+    retrieval_query = req.question
+
+    if is_out_of_scope_query(req.question):
+        return _abstention_response(
+            req,
+            enriched_query,
+            risk_result_raw,
+            shap_result_raw,
+            NO_EVIDENCE_ANSWER + DISCLAIMER,
+            "not used (out of scope)",
+        )
+
     # Modules 105–107: hybrid retrieval.
     try:
         retrieved = hybrid_retrieve(
-            query=enriched_query,
+            query=retrieval_query,
             collection=_collection,
             all_chunks=_all_chunks,
             top_k=req.top_k,
@@ -371,46 +496,13 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         ) from exc
 
     if not retrieved:
-        # A valid question with no supporting evidence is a normal abstention,
-        # not an API failure. Keep the response schema stable for clients/evaluation.
-        abstention = (
-            "The available knowledge-base evidence does not adequately answer this "
-            "question. I will not guess or provide an unsupported medical claim. "
-            "Please consult a qualified healthcare professional or an authoritative, "
-            "current clinical guideline."
-        )
-        return QueryResponse(
-            question=req.question,
-            patient_specific_query=(enriched_query if enriched_query != req.question else None),
-            risk_result=(RiskResult(
-                risk_score=risk_result_raw["risk_score"],
-                risk_category=risk_result_raw["risk_category"],
-                risk_level=risk_result_raw["risk_level"],
-                risk_color=risk_result_raw.get("risk_color", "#6c757d"),
-                prediction=risk_result_raw["prediction"],
-            ) if risk_result_raw else None),
-            shap_result=(SHAPResult(
-                top_features=[SHAPFeature(**item) for item in shap_result_raw.get("top_features", [])],
-                explanation=shap_result_raw.get("explanation", ""),
-                base_value=shap_result_raw.get("base_value", 0.0),
-            ) if shap_result_raw else None),
-            answer=abstention + "\n\n" + (
-                "For educational information only; not a diagnosis or a substitute "
-                "for assessment by a qualified healthcare professional."
-            ),
-            confidence=0.0,
-            evidence_grade="D",
-            faithfulness=0.0,
-            avg_credibility=0.0,
-            hallucination_risk=False,
-            contradictions_found=False,
-            citations=[],
-            disclaimer=(
-                "For educational information only; not a diagnosis or a substitute "
-                "for assessment by a qualified healthcare professional."
-            ),
-            llm_used="not used (insufficient retrieved evidence)",
-            timestamp=utc_now_iso(),
+        return _abstention_response(
+            req,
+            enriched_query,
+            risk_result_raw,
+            shap_result_raw,
+            NO_EVIDENCE_ANSWER + DISCLAIMER,
+            "not used (insufficient retrieved evidence)",
         )
 
     # Modules 108–109: evidence verification.
@@ -423,10 +515,33 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
             detail="Evidence verification is temporarily unavailable.",
         ) from exc
 
+    citations = _pack_citations(verified)
+    contradictions = find_contradictions(verified)
+    if contradictions:
+        return _abstention_response(
+            req,
+            enriched_query,
+            risk_result_raw,
+            shap_result_raw,
+            CONFLICT_ANSWER + DISCLAIMER,
+            "not used (conflicting evidence)",
+            citations=citations,
+            grade=max(
+                (str(chunk.get("evidence_grade", "D")) for chunk in verified),
+                default="D",
+            ),
+            avg_credibility=round(
+                sum(float(chunk.get("credibility_score", 0.0) or 0.0) for chunk in verified)
+                / max(1, len(verified)),
+                3,
+            ),
+            contradictions_found=True,
+        )
+
     # Module 110: generate the evidence-grounded answer first.
     try:
         evidence_answer = generate_answer(
-            enriched_query,
+            retrieval_query,
             verified,
             use_local=req.use_local_llm,
         )
@@ -448,6 +563,20 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
             detail="Could not evaluate the generated answer.",
         ) from exc
 
+    if float(conf_report.get("faithfulness", 0.0)) < float(ABSTAIN_FAITHFULNESS_THRESHOLD):
+        return _abstention_response(
+            req,
+            enriched_query,
+            risk_result_raw,
+            shap_result_raw,
+            NO_EVIDENCE_ANSWER + DISCLAIMER,
+            get_llm_name(),
+            citations=citations,
+            grade=conf_report.get("grade", "D"),
+            avg_credibility=float(conf_report.get("avg_credibility", 0.0) or 0.0),
+            contradictions_found=bool(conf_report.get("contradictions")),
+        )
+
     # Clearly separate model output from evidence-based medical guidance.
     answer = build_final_answer(
         evidence_answer=evidence_answer,
@@ -455,59 +584,7 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         shap_result=shap_result_raw,
     )
 
-    # Module 115: structured citations.
-    citations = []
-    for index, chunk in enumerate(verified):
-        text_value = str(chunk.get("text", ""))
-        try:
-            year = int(chunk.get("year", 0) or 0)
-        except (TypeError, ValueError):
-            year = 0
-
-        try:
-            credibility = float(chunk.get("credibility_score", 0.0) or 0.0)
-        except (TypeError, ValueError):
-            credibility = 0.0
-
-        citations.append(
-            CitationItem(
-                source_num=index + 1,
-                source=str(chunk.get("source", "")),
-                journal=str(chunk.get("journal", "Unknown")),
-                year=year,
-                evidence_grade=str(chunk.get("evidence_grade", "D")),
-                credibility_score=credibility,
-                source_type=str(chunk.get("source_type", "unknown")),
-                chunk_preview=text_value[:200] + ("..." if len(text_value) > 200 else ""),
-            )
-        )
-
-    risk_resp = None
-    if risk_result_raw:
-        risk_resp = RiskResult(
-            risk_score=risk_result_raw["risk_score"],
-            risk_category=risk_result_raw["risk_category"],
-            risk_level=risk_result_raw["risk_level"],
-            risk_color=risk_result_raw.get("risk_color", "#6c757d"),
-            prediction=risk_result_raw["prediction"],
-        )
-
-    shap_resp = None
-    if shap_result_raw:
-        shap_resp = SHAPResult(
-            top_features=[
-                SHAPFeature(
-                    feature=item["feature"],
-                    display=item["display"],
-                    shap_value=item["shap_value"],
-                    direction=item["direction"],
-                    actual=item["actual"],
-                )
-                for item in shap_result_raw.get("top_features", [])
-            ],
-            explanation=shap_result_raw.get("explanation", ""),
-            base_value=shap_result_raw.get("base_value", 0.0),
-        )
+    risk_resp, shap_resp = _pack_risk(risk_result_raw, shap_result_raw)
 
     background_tasks.add_task(
         _log_mlflow,
@@ -539,6 +616,7 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         ),
         llm_used=get_llm_name(),
         timestamp=utc_now_iso(),
+        abstained=False,
     )
 
 

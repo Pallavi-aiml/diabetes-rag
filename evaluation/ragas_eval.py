@@ -282,7 +282,7 @@ def select_questions(limit: int) -> list[dict]:
 # Collect RAG responses for evaluation
 # ---------------------------------------------------------------------------
 
-def collect_rag_responses(questions: list[dict], use_local: bool = True) -> list[dict]:
+def collect_rag_responses(questions: list[dict], use_local: bool = False) -> list[dict]:
     """Query the running API and collect answer, retrieved contexts, and verifier flags."""
     print(f"Collecting RAG responses for {len(questions)} questions…")
     results = []
@@ -321,7 +321,7 @@ def collect_rag_responses(questions: list[dict], use_local: bool = True) -> list
             contexts = []
             for citation in citations:
                 if isinstance(citation, dict):
-                    context = citation.get("chunk_preview") or citation.get("text") or citation.get("content")
+                    context = citation.get("text") or citation.get("chunk_preview") or citation.get("content")
                     if context:
                         contexts.append(str(context))
             answer = str(data.get("answer", ""))
@@ -337,12 +337,13 @@ def collect_rag_responses(questions: list[dict], use_local: bool = True) -> list
                 "hallucination_risk": safe_bool(data.get("hallucination_risk")),
                 "contradictions_found": safe_bool(data.get("contradictions_found")),
                 "citation_count": len(citations),
-                "abstained": (len(citations) == 0 and any(
+                "abstained": bool(data.get("abstained")) or any(
                     phrase in answer.lower() for phrase in (
                         "does not adequately answer", "does not clearly address",
                         "insufficient evidence", "will not guess", "cannot be verified",
+                        "appear to conflict",
                     )
-                )),
+                ),
                 "http_status": resp.status_code,
             })
         except Exception as e:
@@ -587,7 +588,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Evaluate the Diabetes RAG system")
-    parser.add_argument("--local", action="store_true", default=True, help="Use local LLM (Ollama)")
+    parser.add_argument("--local", action="store_true", default=False, help="Use local LLM (Ollama)")
     parser.add_argument("--limit", type=int, default=50, help="Number of questions to evaluate (10–50 recommended)")
     parser.add_argument("--skip-ragas", action="store_true", help="Skip RAGAS evaluation (faster)")
     args = parser.parse_args()

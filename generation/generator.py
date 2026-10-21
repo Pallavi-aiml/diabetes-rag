@@ -15,13 +15,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from config import LLM_TEMPERATURE, LLM_MAX_TOKENS
+from config import LLM_TEMPERATURE, LLM_MAX_TOKENS, OLLAMA_MODEL
 
 logger = logging.getLogger(__name__)
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "").strip()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
 GROQ_MODEL = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b").strip()
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o").strip()
+_last_llm_used = None
 DISCLAIMER = ("\n\n⚠️ This information is for educational purposes only and does not "
               "constitute medical advice. Always consult a qualified healthcare "
               "professional before making clinical decisions.")
@@ -31,6 +32,31 @@ NO_EVIDENCE_ANSWER = (
     "Please consult a qualified healthcare professional or an authoritative, "
     "current clinical guideline."
 )
+CONFLICT_ANSWER = (
+    "Retrieved sources appear to conflict on material points. I will not "
+    "resolve that conflict into a single medical claim. Please review the "
+    "cited sources with a qualified clinician."
+)
+
+
+def is_out_of_scope_query(query: str) -> bool:
+    """Refuse live-local stats, guaranteed universals, and exact personal doses."""
+    q = re.sub(r"\s+", " ", str(query or "").lower()).strip()
+    if not q:
+        return False
+    patterns = (
+        r"\bguaranteed to\b",
+        r"every person",
+        r"regardless of (their )?medical history",
+        r"exact (personal )?(probability|dose)",
+        r"exact confidence interval",
+        r"exact page number",
+        r"\b(live|real[- ]time|today's)\b.{0,80}\bprevalence\b",
+        r"\bprevalence\b.{0,80}\b(neighbourhood|neighborhood|zip code|postcode)\b",
+        r"cure .{0,60}permanently for everyone",
+        r"do not include uncertainty",
+    )
+    return any(re.search(pattern, q) for pattern in patterns)
 
 
 def is_emergency_query(query: str) -> bool:
@@ -136,6 +162,33 @@ def generate_with_groq(prompt: str) -> str:
         raise RuntimeError("The groq package is not installed.") from exc
 
 
+def generate_with_ollama(prompt: str) -> str:
+    try:
+        import ollama
+    except ImportError as exc:
+        raise RuntimeError("The ollama package is not installed.") from exc
+    response = ollama.chat(
+        model=OLLAMA_MODEL,
+        messages=[
+            {"role": "system", "content": "Follow the evidence-grounding rules exactly. Never invent evidence."},
+            {"role": "user", "content": prompt},
+        ],
+        options={
+            "temperature": min(0.2, max(0.0, float(LLM_TEMPERATURE))),
+            "num_predict": min(1200, max(128, int(LLM_MAX_TOKENS))),
+        },
+    )
+    message = response.get("message") if isinstance(response, dict) else getattr(response, "message", None)
+    content = None
+    if isinstance(message, dict):
+        content = message.get("content")
+    else:
+        content = getattr(message, "content", None)
+    if not content or not str(content).strip():
+        raise RuntimeError("Ollama returned an empty answer.")
+    return str(content).strip()
+
+
 def generate_with_openai(prompt: str) -> str:
     if not OPENAI_API_KEY:
         raise RuntimeError("OPENAI_API_KEY is not configured.")
@@ -195,13 +248,41 @@ def detect_llm() -> str:
 
 def generate_answer(query: str, verified_chunks: list, use_local: bool = False, force_llm: str = None) -> str:
     """Generate a grounded answer; use a configured secondary provider on failure."""
+    global _last_llm_used
     if not verified_chunks:
+        _last_llm_used = "not used (insufficient retrieved evidence)"
         return NO_EVIDENCE_ANSWER + DISCLAIMER
     if is_emergency_query(query):
+        _last_llm_used = "not used (emergency routing)"
         return apply_safety_filter(query, "")
+    if is_out_of_scope_query(query):
+        _last_llm_used = "not used (out of scope)"
+        return NO_EVIDENCE_ANSWER + DISCLAIMER
 
     prompt = build_rag_prompt(query, verified_chunks)
-    primary = (force_llm or detect_llm()).lower()
+    errors = []
+
+    if use_local:
+        try:
+            answer = generate_with_ollama(prompt)
+            _last_llm_used = f"Ollama — {OLLAMA_MODEL}"
+            logger.info("Answer generated using Ollama model %s", OLLAMA_MODEL)
+            return apply_safety_filter(query, answer)
+        except Exception as exc:
+            errors.append(f"ollama: {type(exc).__name__}: {exc}")
+            logger.warning("Ollama failed; falling back to configured API providers")
+
+    if force_llm:
+        primary = force_llm.lower()
+    elif GROQ_API_KEY:
+        primary = "groq"
+    elif OPENAI_API_KEY:
+        primary = "openai"
+    else:
+        raise RuntimeError(
+            "No LLM API key is configured. Set GROQ_API_KEY or OPENAI_API_KEY in .env, "
+            "or pass use_local_llm=true with Ollama running."
+        )
     if primary not in {"groq", "openai"}:
         raise ValueError("force_llm must be 'groq' or 'openai'.")
     available = {"groq": bool(GROQ_API_KEY), "openai": bool(OPENAI_API_KEY)}
@@ -210,14 +291,14 @@ def generate_answer(query: str, verified_chunks: list, use_local: bool = False, 
     if available.get(secondary):
         providers.append(secondary)
 
-    errors = []
     for provider in providers:
         if not available[provider]:
             continue
         try:
             answer = _call_provider(provider, prompt)
-            logger.info("Answer generated using %s model %s", provider,
-                        GROQ_MODEL if provider == "groq" else OPENAI_MODEL)
+            model_name = GROQ_MODEL if provider == "groq" else OPENAI_MODEL
+            _last_llm_used = f"{provider.title()} — {model_name}"
+            logger.info("Answer generated using %s model %s", provider, model_name)
             return apply_safety_filter(query, answer)
         except Exception as exc:
             errors.append(f"{provider}: {type(exc).__name__}: {exc}")
@@ -227,6 +308,8 @@ def generate_answer(query: str, verified_chunks: list, use_local: bool = False, 
 
 
 def get_llm_name() -> str:
+    if _last_llm_used:
+        return _last_llm_used
     if GROQ_API_KEY:
         if OPENAI_API_KEY:
             return f"Groq ({GROQ_MODEL}; OpenAI fallback configured)"
