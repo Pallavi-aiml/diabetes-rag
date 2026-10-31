@@ -117,6 +117,7 @@ Rules:
 - If the evidence is insufficient or conflicting, explicitly say what it does not establish and do not guess.
 - Do not prescribe a medication or personalized dose. Encourage clinician review for individual decisions.
 - Do not repeat the same claim in multiple ways.
+- Write every sentence so it can be verified on its own: name the subject explicitly and never start a sentence with "This", "It", "These", "They" or "Additionally"; give one cited fact per sentence, with its [SOURCE N] at the end.
 
 EVIDENCE BLOCKS:
 {context}
@@ -212,20 +213,66 @@ def generate_with_openai(prompt: str) -> str:
         raise RuntimeError("The openai package is not installed.") from exc
 
 
+def _retry_delay(exc: Exception, attempt: int) -> float:
+    """Seconds to wait before retrying: honour a Retry-After header if the provider sent one,
+    otherwise back off 1.5s then 6s. (Rate-limit windows last seconds, not 0.8s.)"""
+    try:
+        headers = getattr(getattr(exc, "response", None), "headers", None) or {}
+        retry_after = headers.get("retry-after") or headers.get("Retry-After")
+        if retry_after:
+            return min(30.0, max(0.5, float(retry_after)))
+    except (TypeError, ValueError):
+        pass
+    return (1.5, 6.0)[min(attempt, 1)]
+
+
 def _call_provider(provider: str, prompt: str) -> str:
-    """One short retry for transient failures; fail over at most once."""
+    """Up to 3 attempts with backoff for transient failures (429/5xx/timeouts)."""
     fn = generate_with_groq if provider == "groq" else generate_with_openai
     last_error = None
-    for attempt in range(2):
+    for attempt in range(3):
         try:
             return fn(prompt)
         except Exception as exc:
             last_error = exc
-            if attempt == 0 and _retryable(exc):
-                time.sleep(0.8)
+            if attempt < 2 and _retryable(exc):
+                delay = _retry_delay(exc, attempt)
+                logger.warning("%s attempt %d failed (%s: %s); retrying in %.1fs",
+                               provider, attempt + 1, type(exc).__name__, str(exc)[:120], delay)
+                time.sleep(delay)
                 continue
             break
     raise RuntimeError(f"{provider} generation failed: {type(last_error).__name__}: {last_error}") from last_error
+
+
+_THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL | re.IGNORECASE)
+_CITE_RE = re.compile(r"\[\s*SOURCES?\s+\d+(?:\s*(?:,|;|and|&)\s*(?:SOURCES?\s*)?\d+)*\s*\]", re.IGNORECASE)
+
+
+def clean_model_output(answer: str, num_sources: int) -> str:
+    """Strip reasoning traces and invalid citations from raw model output.
+
+    - Reasoning models (e.g. Qwen) can leak <think>...</think>; that must never reach
+      the user or the faithfulness scorer.
+    - [SOURCE n] with n outside 1..num_sources is a fabricated citation and is removed.
+    """
+    text = _THINK_RE.sub("", str(answer or ""))
+    # A reasoning model that ran out of tokens leaves an UNCLOSED <think> block: everything after it
+    # is chain-of-thought, never an answer, and must not be shown to the user.
+    text = re.sub(r"<think>.*$", "", text, flags=re.DOTALL | re.IGNORECASE)
+    text = re.sub(r"</?think>", "", text, flags=re.IGNORECASE)
+
+    def _keep(match):
+        numbers = [int(n) for n in re.findall(r"\d+", match.group(0))]
+        valid = [n for n in numbers if 1 <= n <= num_sources]
+        if not valid:
+            return ""
+        if len(valid) == len(numbers):
+            return match.group(0)
+        return "[" + ", ".join(f"SOURCE {n}" for n in valid) + "]"
+
+    text = _CITE_RE.sub(_keep, text)
+    return re.sub(r"[ \t]{2,}", " ", text).strip()
 
 
 def apply_safety_filter(query: str, answer: str) -> str:
@@ -264,7 +311,9 @@ def generate_answer(query: str, verified_chunks: list, use_local: bool = False, 
 
     if use_local:
         try:
-            answer = generate_with_ollama(prompt)
+            answer = clean_model_output(generate_with_ollama(prompt), len(verified_chunks))
+            if not answer:
+                raise RuntimeError("Ollama returned only reasoning text / no usable answer.")
             _last_llm_used = f"Ollama — {OLLAMA_MODEL}"
             logger.info("Answer generated using Ollama model %s", OLLAMA_MODEL)
             return apply_safety_filter(query, answer)
@@ -295,7 +344,9 @@ def generate_answer(query: str, verified_chunks: list, use_local: bool = False, 
         if not available[provider]:
             continue
         try:
-            answer = _call_provider(provider, prompt)
+            answer = clean_model_output(_call_provider(provider, prompt), len(verified_chunks))
+            if not answer:
+                raise RuntimeError("Model returned only reasoning text / no usable answer.")
             model_name = GROQ_MODEL if provider == "groq" else OPENAI_MODEL
             _last_llm_used = f"{provider.title()} — {model_name}"
             logger.info("Answer generated using %s model %s", provider, model_name)

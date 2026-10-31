@@ -19,8 +19,9 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from config import (
     PUBMED_BASE_URL, PUBMED_EMAIL, RAW_DATA_PATH,
-    PROCESSED_DATA_PATH, PUBMED_QUERIES
+    PROCESSED_DATA_PATH, PUBMED_QUERIES, PUBMED_EVIDENCE_FILTER, PUBMED_MIN_YEAR
 )
+from ingestion.text_cleaning import normalize_pdf_text
 
 
 # ── PubMed helpers ─────────────────────────────────────────────────────────────
@@ -30,7 +31,11 @@ def search_pubmed_ids(query: str, max_results: int = 500) -> list:
     url    = f"{PUBMED_BASE_URL}/esearch.fcgi"
     params = {
         "db":      "pubmed",
-        "term":    query,
+        # Bias towards higher-level evidence and a sensible date window.
+        "term":    f"({query}) AND {PUBMED_EVIDENCE_FILTER} AND hasabstract AND english[lang]",
+        "sort":    "relevance",
+        "datetype": "pdat",
+        "mindate": str(PUBMED_MIN_YEAR),
         "retmax":  max_results,
         "retmode": "json",
         "email":   PUBMED_EMAIL,
@@ -157,6 +162,27 @@ def detect_source_type(pub_types: list, abstract: str) -> str:
     return "unknown"
 
 
+def _parse_year(article) -> int:
+    """Publication year from PubDate/Year, MedlineDate ("2019 Jan-Feb") or ArticleDate.
+
+    Falls back to 2000 (treated as 'unknown/old' by the verifier) rather than guessing.
+    """
+    import re
+    from datetime import datetime
+    max_year = datetime.now().year + 1
+    candidates = [
+        article.findtext(".//Journal/JournalIssue/PubDate/Year"),
+        article.findtext(".//Journal/JournalIssue/PubDate/MedlineDate"),
+        article.findtext(".//ArticleDate/Year"),
+        article.findtext(".//PubDate/Year"),
+    ]
+    for text in candidates:
+        match = re.search(r"(19|20)\d{2}", text or "")
+        if match and 1950 <= int(match.group(0)) <= max_year:
+            return int(match.group(0))
+    return 2000
+
+
 def parse_pubmed_xml(xml_text: str) -> list:
     """Parse PubMed XML and extract structured records with improved source_type."""
     records = []
@@ -188,8 +214,7 @@ def parse_pubmed_xml(xml_text: str) -> list:
             journal    = journal_el.text if journal_el is not None else "Unknown"
 
             # Year
-            year_el = article.find(".//PubDate/Year")
-            year    = int(year_el.text) if year_el is not None else 2000
+            year = _parse_year(article)
 
             # Publication types
             pub_types = [
@@ -293,7 +318,7 @@ def parse_pdf(pdf_path: str, source_type: str = "clinical_guideline",
 
     for page_num in range(len(doc)):
         page = doc[page_num]
-        text = page.get_text("text").strip()
+        text = normalize_pdf_text(page.get_text("text"))
         if len(text) < 50:  # skip blank / cover pages
             continue
         pages.append({

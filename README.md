@@ -1,263 +1,125 @@
 # Evidence-Verified RAG System for Diabetes Care
 
-A clinical AI system that retrieves and verifies medical evidence before generating answers. Every response includes credibility scores, GRADE evidence levels, NLI-based faithfulness checks, and cited sources.
+A retrieval-augmented question-answering system for diabetes information that **verifies its own answers**.
+Every response comes with source citations, a heuristic evidence grade, and a **claim-level faithfulness check**
+that tells you which sentences of the answer are *not* supported by the retrieved evidence. When the knowledge base
+doesn't contain enough relevant evidence, the system **abstains** instead of guessing.
+
+> ⚠️ Educational project. Not a medical device, not a diagnosis tool. All scores are heuristic indicators,
+> not calibrated probabilities or clinical validation.
 
 ---
 
-## Project Structure
+## Architecture
 
-```
-diabetes_rag/
-├── config.py                   # All config (models, paths, thresholds)
-├── run_pipeline.py             # Master pipeline runner
-├── requirements.txt
-├── Dockerfile
-├── docker-compose.yml
-│
-├── data/
-│   ├── raw/                    # Place ADA/WHO/ICMR PDFs here
-│   ├── processed/              # chunked JSON files, FAISS index
-│   └── chroma_db/              # ChromaDB persistent vector store
-│
-├── ingestion/
-│   ├── loader.py               # PubMed API fetcher + PDF parser
-│   ├── chunker.py              # Recursive text splitter
-│   └── embedder.py             # PubMedBERT embeddings, ChromaDB, FAISS
-│
-├── retrieval/
-│   └── retriever.py            # BM25 + dense + RRF + cross-encoder reranker
-│
-├── evidence/                   ← CORE INNOVATION
-│   └── verifier.py             # Credibility score, GRADE, NLI faithfulness,
-│                               # contradiction detection, confidence aggregator
-│
-├── generation/
-│   └── generator.py            # Prompt builder, Ollama/GPT-4o, safety filter
-│
-├── api/
-│   └── app.py                  # FastAPI: /query, /feedback, /health, /stats
-│
-├── frontend/
-│   └── app.py                  # Streamlit UI with evidence badges
-│
-├── evaluation/
-│   └── ragas_eval.py           # RAGAS evaluation + 50-question golden dataset
-│
-└── tests/
-    └── test_all.py             # Full pytest suite (unit + integration)
+```mermaid
+flowchart LR
+    Q[Question + optional patient params] --> R[Risk model<br/>XGBoost + TreeSHAP]
+    Q --> H
+    R -->|enriched query| H
+    subgraph Retrieval
+      H[Hybrid retrieval<br/>PubMedBERT dense + BM25] --> F[Reciprocal Rank Fusion]
+      F --> X[Cross-encoder rerank]
+      X --> G[Relevance filter (abstains if nothing relevant)]
+    end
+    G -->|no evidence| A[Abstain]
+    G --> V1[Credibility + GRADE-style grade]
+    V1 --> L[LLM: Groq primary / OpenAI fallback<br/>grounded prompt, citations required]
+    L --> C[Clean output<br/>strip think-traces, invalid citations]
+    C --> V2[Claim-level NLI verification<br/>checks each claim against the source it cites]
+    V2 --> O[Answer + confidence + unsupported claims + citations]
 ```
 
----
+| Stage | What it does |
+|---|---|
+| Ingestion | PubMed E-utilities (evidence-filtered: SR / meta-analysis / RCT / guideline) + ADA / WHO / ICMR PDFs → 800-char chunks |
+| Retrieval | Dense (ChromaDB) + BM25 → RRF → cross-encoder rerank → relevance filter (`MIN_QUERY_RELEVANCE`, `MIN_RERANK_SCORE`) → out-of-scope + conflict refusals |
+| Evidence layer | Credibility score (0–5), GRADE-style grade (A–D), contradiction *heuristic* |
+| Generation | Grounded prompt, evidence treated as untrusted data, emergency-query safety filter |
+| Verification | **Per-claim NLI** over 1–3 sentence evidence windows, citation-aware, lexical fallback |
+| Serving | FastAPI (`/query`, `/feedback`, `/health`, `/stats`), Streamlit UI, MLflow logging |
 
-## Quick Start
+## What's new in v4
 
-### 1. Clone and install
+See [CHANGELOG.md](CHANGELOG.md) for the full list. Highlights:
+
+- **Claim-level verification** — answers are split into claims; each is checked against the source it cites. The API returns `unsupported_claims`, `supported_ratio`, `citation_coverage`.
+- **Confidence can't be bought with good sources** — it is capped when claims are unsupported.
+- **Safer refusals** (from the hardening commit): out-of-scope questions, conflicting sources and answers with near-zero faithfulness are withheld with an explicit abstention.
+- **Cleaner model output** — reasoning traces (`<think>`) and fabricated `[SOURCE n]` citations are stripped before scoring/serving.
+- **Data fixes** — evidence-biased PubMed query, robust year parsing, no more silent "everything is a cohort study".
+- **Ops fixes** — Groq key now reaches Docker, Dockerfile has a `CMD` + healthcheck, `requirements.txt` includes xgboost/scikit-learn/pandas, optional API-key auth + rate limit, no committed `mlflow.db`.
+
+## Quick start
 
 ```bash
-git clone <your-repo>
-cd diabetes_rag
-python -m venv venv
-source venv/bin/activate          # Windows: venv\Scripts\activate
+git clone https://github.com/Pallavi-aiml/diabetes-rag && cd diabetes-rag
+python -m venv venv && source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
+cp .env.example .env      # add GROQ_API_KEY (and/or OPENAI_API_KEY) + PUBMED_EMAIL
 ```
 
-### 2. Configure
+Optional: put `ada_2024.pdf`, `who_diabetes.pdf`, `icmr_diabetes.pdf` in `data/raw/`.
 
 ```bash
-cp .env.example .env
-# Edit .env: add your OPENAI_API_KEY and PUBMED_EMAIL
+python run_pipeline.py --all          # fetch PubMed + chunk + embed (20–40 min first time)
+uvicorn api.app:app --port 8000       # API   → http://localhost:8000/docs
+streamlit run frontend/app.py         # UI    → http://localhost:8501
 ```
 
-### 3. Add guideline PDFs (optional but recommended)
+> The repo ships `data/processed/chunks.json` built with the **old** ingestion settings. To benefit from the
+> v4 data fixes run `python run_pipeline.py --all` again (it rebuilds chunks and vectors).
 
-Download these free PDFs and place in `./data/raw/`:
-- ADA Standards of Care 2024 → name it `ada_2024.pdf`
-- WHO Diabetes Guidelines → name it `who_diabetes.pdf`
-- ICMR Guidelines → name it `icmr_diabetes.pdf`
+**Docker:** `docker compose up --build` → API :8000, UI :8501, MLflow :5000.
 
-### 4. Install local LLM (free)
+## Example
 
 ```bash
-# Install Ollama from https://ollama.com
-ollama pull llama3
-ollama serve          # keep this running in a separate terminal
+curl -X POST localhost:8000/query -H 'Content-Type: application/json' \
+  -d '{"question": "What is the recommended HbA1c target for type 2 diabetes?", "top_k": 5}'
 ```
 
-### 5. Run the ingestion pipeline
+Key response fields: `answer`, `confidence`, `evidence_grade`, `faithfulness`, `supported_ratio`,
+`unsupported_claims`, `citation_coverage`, `hallucination_risk`, `abstained`, `insufficient_evidence`, `citations[].text`.
 
-```bash
-# Full pipeline (fetch PubMed + chunk + embed) — takes 20-40 mins first time
-python run_pipeline.py --all
+## Configuration
 
-# Or step by step:
-python run_pipeline.py --ingest     # fetch PubMed abstracts
-python run_pipeline.py --chunk      # split into chunks
-python run_pipeline.py --embed      # build ChromaDB + FAISS
-python run_pipeline.py --test-query # quick smoke test
-```
-
-### 6. Start the API
-
-```bash
-uvicorn api.app:app --reload --port 8000
-# Swagger docs: http://localhost:8000/docs
-```
-
-### 7. Start the frontend
-
-```bash
-streamlit run frontend/app.py
-# Opens at http://localhost:8501
-```
-
----
-
-## Models Used
-
-| Purpose | Model | Size | Source |
-|---|---|---|---|
-| Embedding | PubMedBERT | 110M | HuggingFace |
-| Reranker | ms-marco-MiniLM-L-6-v2 | 22M | HuggingFace |
-| Hallucination / NLI | facebook/bart-large-mnli | 400M | HuggingFace |
-| LLM (dev/free) | LLaMA-3 8B via Ollama | 8B | ollama.com |
-| LLM (final demo) | GPT-4o | — | OpenAI API |
-
----
-
-## API Endpoints
-
-| Method | Endpoint | Description |
-|---|---|---|
-| POST | `/query` | Main RAG query — returns answer + evidence report |
-| POST | `/feedback` | Submit rating and comment |
-| GET | `/health` | Health check |
-| GET | `/stats` | Knowledge base statistics |
-| GET | `/docs` | Swagger UI |
-
-### Sample `/query` request
-
-```json
-{
-  "question": "What is the recommended HbA1c target for type 2 diabetes?",
-  "use_local_llm": true,
-  "top_k": 5,
-  "patient_context": "65-year-old with CKD stage 3"
-}
-```
-
-### Sample `/query` response
-
-```json
-{
-  "question": "What is the recommended HbA1c target for type 2 diabetes?",
-  "answer": "The ADA 2024 guidelines recommend an HbA1c target of less than 7.0% for most non-pregnant adults [SOURCE 1]...",
-  "confidence": 0.84,
-  "evidence_grade": "A",
-  "faithfulness": 0.79,
-  "avg_credibility": 4.5,
-  "hallucination_risk": false,
-  "contradictions_found": false,
-  "citations": [...],
-  "disclaimer": "This system provides information only. Always consult a qualified clinician.",
-  "llm_used": "llama3"
-}
-```
-
----
+Everything is in `config.py` and overridable via `.env` (see `.env.example`):
+`GROQ_MODEL`, `OPENAI_MODEL`, `NLI_MODEL`, `CLAIM_SUPPORT_THRESHOLD`, `SUPPORTED_RATIO_MIN`,
+`GUIDELINE_INTENT_BONUS`, `MIN_QUERY_RELEVANCE`, `API_KEY`, `RATE_LIMIT_PER_MIN`, `OLLAMA_MODEL`, …
 
 ## Evaluation
 
 ```bash
-# Run full evaluation against 50-question golden dataset
-python evaluation/ragas_eval.py
-
-# Fast mode (skip RAGAS, just internal metrics)
+python evaluation/ragas_eval.py                  # 50 questions: 40 answerable, 5 unsupported, 5 unanswerable
 python evaluation/ragas_eval.py --skip-ragas --limit 20
-
-# View results
-ls evaluation/
-```
-
-RAGAS metrics reported:
-- **Faithfulness** — is the answer supported by retrieved context?
-- **Answer Relevancy** — does the answer address the question?
-- **Context Precision** — are retrieved chunks relevant?
-- **Context Recall** — were all relevant chunks found?
-
-View experiment logs:
-```bash
+python scripts/debug_retrieval.py "your question" --expect "keyword"   # see dense / BM25 / final ranking
 mlflow ui --port 5000
-# Open http://localhost:5000
 ```
 
----
+Results of earlier runs (kept in `evaluation/results/`) and an honest reading of them are in
+[docs/EVALUATION.md](docs/EVALUATION.md). **Read that before quoting numbers in your report.**
 
-## Run Tests
+## Tests
 
 ```bash
-pytest tests/test_all.py -v --tb=short
+pytest tests/test_v4_light.py -v     # ~0.5 s, no GPU/model downloads (also runs in CI)
+pytest tests -v                      # full suite
 ```
 
----
+## Models
 
-## Docker Deployment
-
-```bash
-docker-compose up --build
-# API    → http://localhost:8000
-# UI     → http://localhost:8501
-# MLflow → http://localhost:5000
-```
-
----
-
-## Evidence Verification Layer (Core Innovation)
-
-Each retrieved chunk is processed through 4 stages before the LLM sees it:
-
-1. **Credibility Scorer** — assigns 0–5 score based on source type (RCT=5, guideline=4, case report=2), journal tier (Diabetes Care=5, NEJM=5), and publication recency
-2. **GRADE Classifier** — assigns A/B/C/D evidence level using study design keywords and source metadata
-3. **NLI Faithfulness Check** — uses `facebook/bart-large-mnli` to measure whether the generated answer is entailed by retrieved passages (detects hallucinations)
-4. **Contradiction Detector** — pairwise NLI check across chunks flags conflicting evidence
-
-Final confidence score = faithfulness×0.5 + normalised_credibility×0.4 + grade_bonus×0.1
-
----
-
-## Tech Stack
-
-| Layer | Technology |
+| Purpose | Model |
 |---|---|
-| Language | Python 3.10+ |
-| Embedding | PubMedBERT (sentence-transformers) |
-| Vector store | ChromaDB + FAISS |
-| Sparse retrieval | rank-bm25 |
-| Reranker | cross-encoder/ms-marco-MiniLM |
-| NLI model | facebook/bart-large-mnli |
-| LLM | LLaMA-3 (Ollama) / GPT-4o |
-| Orchestration | LangChain + LlamaIndex |
-| API | FastAPI + Uvicorn |
-| Frontend | Streamlit |
-| Evaluation | RAGAS + MLflow |
-| Testing | pytest + httpx |
+| Embedding | `microsoft/BiomedNLP-BiomedBERT-base-uncased-abstract` (PubMedBERT) |
+| Reranker | `cross-encoder/ms-marco-MiniLM-L-6-v2` |
+| NLI (faithfulness) | `cross-encoder/nli-deberta-v3-small` (configurable via `NLI_MODEL`) |
+| LLM | Groq (primary), OpenAI (fallback) — model IDs set in `.env` |
+| Risk model | XGBoost + TreeSHAP on the Pima Indians dataset (educational only) |
 
----
+## Known limitations
 
-## Dataset Sources
-
-| Dataset | Purpose |
-|---|---|
-| PubMed (via E-utilities API) | Research abstracts — knowledge base |
-| ADA Standards of Care 2024 | Clinical guidelines — knowledge base |
-| WHO / ICMR Guidelines | Clinical guidelines — knowledge base |
-| MedMCQA (HuggingFace) | Evaluation benchmark |
-| Golden dataset (50 Q&A) | Custom evaluation set |
-
----
-
-## Acknowledgements
-
-- American Diabetes Association (ADA) for open guidelines
-- NCBI/PubMed for free API access
-- HuggingFace for open-source model hosting
-- RAGAS team for the evaluation framework
+- Heuristic grade/credibility are **not** a formal GRADE assessment; contradiction detection is a negation-polarity heuristic.
+- The risk model is trained on the small, single-population Pima dataset — educational, not clinically valid.
+- NLI models are weak on numbers and multi-sentence reasoning; thresholds should be re-tuned when you change `NLI_MODEL`.
+- Knowledge base is PubMed abstracts + three guideline PDFs, not full texts.

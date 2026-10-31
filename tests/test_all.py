@@ -192,7 +192,7 @@ class TestConfidenceAggregator:
 
     def test_low_faithfulness_cannot_be_rescued_by_prestige(self, verified_chunks):
         from evidence.verifier import aggregate_confidence
-        with patch("evidence.verifier.check_faithfulness_multi", return_value=0.20):
+        with patch("evidence.verifier.verify_answer", return_value={"faithfulness": 0.20, "supported_ratio": 0.0, "claims": [{"claim": "x"}], "unsupported_claims": ["x"], "citation_coverage": 0.0, "insufficient_evidence": False}):
             report = aggregate_confidence(verified_chunks, "Unsupported claim.")
         assert report["faithfulness"] == 0.20
         assert report["confidence"] <= 0.20 + 1e-6

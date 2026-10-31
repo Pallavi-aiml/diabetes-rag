@@ -1,39 +1,39 @@
-version: "3.9"
-
 services:
   api:
     build: .
     container_name: diabetes_rag_api
-    ports:
-      - "8000:8000"
+    ports: ["8000:8000"]
+    env_file: .env
+    environment:
+      - CHROMA_DB_PATH=/app/data/chroma_db
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+      - ALLOWED_ORIGINS=http://localhost:8501,http://127.0.0.1:8501
     volumes:
       - ./data:/app/data
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - GROQ_API_KEY=${GROQ_API_KEY}
-      - PUBMED_EMAIL=${PUBMED_EMAIL}
-      - CHROMA_DB_PATH=/app/data/chroma_db
-    command: uvicorn api.app:app --host 0.0.0.0 --port 8000
+      - hf_cache:/app/.cache/huggingface
+    depends_on: [mlflow]
     restart: unless-stopped
 
   frontend:
     build: .
     container_name: diabetes_rag_frontend
-    ports:
-      - "8501:8501"
-    depends_on:
-      - api
+    ports: ["8501:8501"]
+    env_file: .env
     environment:
       - API_URL=http://api:8000
     command: streamlit run frontend/app.py --server.port 8501 --server.address 0.0.0.0
+    depends_on: [api]
     restart: unless-stopped
 
   mlflow:
-    image: ghcr.io/mlflow/mlflow:latest
+    image: ghcr.io/mlflow/mlflow:v2.16.2
     container_name: diabetes_rag_mlflow
-    ports:
-      - "5000:5000"
+    ports: ["5000:5000"]
     volumes:
-      - ./mlruns:/mlflow/mlruns
-    command: mlflow server --host 0.0.0.0 --port 5000
+      - mlflow_data:/mlflow
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri sqlite:////mlflow/mlflow.db --default-artifact-root /mlflow/artifacts
     restart: unless-stopped
+
+volumes:
+  hf_cache:
+  mlflow_data:

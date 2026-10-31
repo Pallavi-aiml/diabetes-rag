@@ -21,7 +21,8 @@ import chromadb
 sys.path.append(str(Path(__file__).parent.parent))
 from config import (
     TOP_K_RETRIEVE, TOP_K_RERANK, RERANKER_MODEL,
-    MIN_QUERY_RELEVANCE, MIN_RERANK_SCORE,
+    MIN_QUERY_RELEVANCE, MIN_RERANK_SCORE, GUIDELINE_INTENT_BONUS,
+    RERANK_POOL, RERANK_KEEP, POPULATION_MISMATCH_PENALTY,
 )
 from ingestion.embedder import embed_query
 
@@ -83,8 +84,55 @@ INTENT_TERMS = {
 _WORD_RE = re.compile(r"[a-zA-Z][a-zA-Z0-9'-]*")
 
 
+# Clinical synonyms / spelling variants collapsed to ONE token so BM25 and lexical
+# scoring match them. Without this, "HbA1c" (query) never matches "A1C" (ADA PDF).
+_CANON = {
+    "hba1c": "a1c", "hemoglobin-a1c": "a1c", "glycated": "a1c", "glycosylated": "a1c",
+    "glycaemic": "glycemic", "glycaemia": "glycemia", "hyperglycaemia": "hyperglycemia",
+    "hypoglycaemia": "hypoglycemia", "haemoglobin": "hemoglobin", "oedema": "edema",
+    "paediatric": "pediatric", "randomised": "randomized", "individualised": "individualized",
+    "t2dm": "t2d", "t1dm": "t1d",
+    # Users say "target", ADA text says "goal(s)".
+    "goal": "target", "goals": "target", "targets": "target",
+}
+_POPULATION_PATTERNS = {
+    "pediatric": r"\b(youth|child|children|adolescents?|pediatric|paediatric|infants?|teens?)\b",
+    # "nonpregnant" / "non-pregnant" (the ADA wording for general adults) must NOT count as pregnancy.
+    "pregnancy": r"(?<!non-)\b(pregnan\w*|gestational|preconception)\b",
+    "older": r"\b(older adults?|elderly|frailty)\b",
+}
+
+
+def _populations(text: str) -> set:
+    t = str(text or "").lower()
+    found = {name for name, pat in _POPULATION_PATTERNS.items() if re.search(pat, t)}
+    if re.search(r"type\s*1", t) and not re.search(r"type\s*2", t):
+        found.add("type1_only")
+    return found
+
+
+def population_mismatch_penalty(query: str, chunk: dict) -> float:
+    """Negative adjustment when a chunk is about a population the question did not ask about
+    (e.g. a youth or type-1 transplant chunk for "adults with type 2 diabetes")."""
+    if POPULATION_MISMATCH_PENALTY <= 0:
+        return 0.0
+    mismatched = _populations(chunk.get("text", "")) - _populations(query)
+    return -POPULATION_MISMATCH_PENALTY * min(2, len(mismatched))
+
+
+_RECOMMENDATION_INTENT = (
+    "recommended", "recommend", "recommendation", "target", "goal", "first-line",
+    "first line", "guideline", "should", "threshold", "cutoff", "preferred",
+)
+
+
 def _tokens(text: str) -> list:
-    return [t.lower() for t in _WORD_RE.findall(str(text or ""))]
+    return [_CANON.get(t, t) for t in (w.lower() for w in _WORD_RE.findall(str(text or "")))]
+
+
+def has_recommendation_intent(query: str) -> bool:
+    q = str(query or "").lower()
+    return any(term in q for term in _RECOMMENDATION_INTENT)
 
 
 def _query_intent(query: str) -> set:
@@ -256,13 +304,15 @@ def filter_relevant(
             continue
         copied = dict(chunk)
         copied["query_relevance_score"] = _query_specific_score(query, copied) if query else 0.0
-        if query and copied["query_relevance_score"] < min_query_relevance:
+        # <= (with tolerance): zero keyword/intent overlap + a neutral reranker scores exactly
+        # the floor (0.20) and must be dropped, not let through by an equality edge case.
+        if query and copied["query_relevance_score"] <= min_query_relevance + 1e-9:
             continue
         relevant.append(copied)
     return relevant
 
 
-def boost_quality_sources(chunks: list) -> list:
+def boost_quality_sources(chunks: list, query: str = "") -> list:
     """
     Source quality is a small tie-breaker after query relevance, not a way for
     an irrelevant guideline to outrank a directly relevant source.
@@ -279,9 +329,13 @@ def boost_quality_sources(chunks: list) -> list:
 
     def final_score(chunk):
         relevance = float(chunk.get("query_relevance_score", 0.0))
-        bonus = source_bonus.get(str(chunk.get("source_type", "unknown")).lower(), 0.0)
+        source_type = str(chunk.get("source_type", "unknown")).lower()
+        bonus = source_bonus.get(source_type, 0.0)
+        if source_type == "clinical_guideline" and has_recommendation_intent(query):
+            bonus += GUIDELINE_INTENT_BONUS
         rerank = float(chunk.get("rerank_score", 0.0))
-        return relevance + bonus + 0.02 * max(-1.0, min(1.0, rerank / 5.0))
+        return (relevance + bonus + 0.02 * max(-1.0, min(1.0, rerank / 5.0))
+                + population_mismatch_penalty(query, chunk))
 
     return sorted(chunks, key=final_score, reverse=True)
 
@@ -310,7 +364,7 @@ def hybrid_retrieve(
     if not all_chunks:
         # Dense retrieval can still function if the caller has no local BM25 corpus.
         dense_docs = dense_retrieve(query, collection, n=TOP_K_RETRIEVE)
-        return boost_quality_sources(filter_relevant(rerank(query, dense_docs, top_k=top_k), query))[:top_k]
+        return boost_quality_sources(filter_relevant(rerank(query, dense_docs, top_k=top_k), query), query)[:top_k]
 
     fingerprint = _corpus_fingerprint(all_chunks)
     if _bm25_cache["fingerprint"] != fingerprint or _bm25_cache["index"] is None:
@@ -321,15 +375,16 @@ def hybrid_retrieve(
     dense_docs = dense_retrieve(query, collection, n=TOP_K_RETRIEVE)
     bm25_docs = bm25_retrieve(query, _bm25_cache["index"], all_chunks, n=TOP_K_RETRIEVE)
     fused = reciprocal_rank_fusion([dense_docs, bm25_docs])
+    pool = fused[:max(RERANK_POOL, top_k + 3)]
     reranked = rerank(
         query,
-        fused[:max(20, top_k + 3)],
-        top_k=min(len(fused), max(top_k * 3, top_k + 3))
+        pool,
+        top_k=min(len(pool), max(top_k * 3, top_k + 3, RERANK_KEEP))
     )
     relevant = filter_relevant(reranked, query=query)
 
     # Crucially, do not fallback to off-topic chunks when relevance filtering empties results.
-    boosted = boost_quality_sources(relevant)
+    boosted = boost_quality_sources(relevant, query)
     return boosted[:top_k]
 
 

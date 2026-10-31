@@ -1,0 +1,174 @@
+question,ground_truth,answer,confidence,grade,faithfulness_internal
+What is the recommended HbA1c target for most non-pregnant adults with type 2 diabetes?,Less than 7.0% (53 mmol/mol) per ADA 2024 Standards of Care.,"The recommended HbA1c target for most patients with type 2 diabetes is to keep their HbA1c below 7% [SOURCE 1]. This aligns with the recommended HbA1c target of < 7.0% cited in recent literature [SOURCE 2]. However, it is important to note that treatment targets need to be individualized [SOURCE 1].",0.8142,A,0.75
+What is the first-line pharmacological treatment for type 2 diabetes?,Metformin is recommended as the preferred initial pharmacological agent for type 2 diabetes.,"Based on the provided evidence, **metformin** is the first-line pharmacological treatment for type 2 diabetes [SOURCE 1] [SOURCE 2] [SOURCE 3] [SOURCE 4] [SOURCE 5].
+
+Key supporting details from the evidence include:
+*   It is described as the first-line treatment for type 2 diabetes in general [SOU",0.7486,A,0.75
+What blood pressure target is recommended for patients with diabetes?,A blood pressure target of less than 130/80 mmHg is recommended for most patients with diabetes.,"Based on the provided evidence, the recommended blood pressure targets for patients with diabetes are as follows:
+
+*   **General Recommendation:** People with diabetes who have hypertension should be treated to blood pressure targets of **<130/80 mmHg** [SOURCE 3].
+*   **Type 1 Diabetes:** A similar",0.8286,A,0.75
+What are the main microvascular complications of diabetes?,"The main microvascular complications of diabetes are diabetic retinopathy, nephropathy, and neuropathy.","The main microvascular complications of diabetes include:
+
+*   **Diabetic Retinopathy (DR)**: Described as the main blinding complication of type 2 diabetes [SOURCE 4]. It is also identified as one of the most frequent microvascular complications of diabetes mellitus [SOURCE 3].
+*   **Diabetic Kidne",0.7042,B,0.75
+What is the role of SGLT2 inhibitors in type 2 diabetes with heart failure?,SGLT2 inhibitors reduce hospitalisation for heart failure and are recommended in T2DM patients with established heart failure.,"Based on the provided evidence, the role of SGLT2 inhibitors in patients with type 2 diabetes and heart failure is characterized by the following:
+
+*   **Recommendation Status:** SGLT2 inhibitors are recommended for patients with type 2 diabetes and heart failure [SOURCE 1].
+*   **Clinical Benefits:",0.7998,A,0.75
+When is metformin contraindicated in diabetes patients?,Metformin is contraindicated in patients with eGFR less than 30 mL/min/1.73m² due to risk of lactic acidosis.,"Based on the provided evidence, metformin is contraindicated or should be withheld in the following situations:
+
+*   **Renal Impairment:** Metformin is contraindicated in individuals with an estimated glomerular filtration rate (eGFR) <30 mL/min/1.73 m² [SOURCE 2].
+*   **Surgical or Diagnostic Proce",0.7602,B,0.75
+What fasting plasma glucose level is used to diagnose diabetes?,A fasting plasma glucose of 126 mg/dL (7.0 mmol/L) or higher on two occasions is diagnostic of diabetes.,"The fasting plasma glucose level used to diagnose diabetes is **≥ 7.0 mmol/L** [SOURCE 3]. This is equivalent to **≥ 126 mg/dl** [SOURCE 2].
+
+Diagnosis can be based on this fasting plasma glucose (FPG) value, among other criteria such as A1C or 2-hour plasma glucose [SOURCE 1].
+
+⚠️ This information ",0.7906,B,0.75
+What lifestyle interventions are recommended for type 2 diabetes prevention?,Weight loss of 5-7% body weight and at least 150 minutes per week of moderate physical activity are recommended to prevent type 2 diabetes.,"Based on the provided evidence, the following lifestyle interventions are recommended for the prevention of type 2 diabetes:
+
+*   **Dietary Modifications:** Population-wide changes in diet, specifically a reduction in calorie intake, have been shown to affect type 2 diabetes prevalence [SOURCE 1].
+*",0.7966,A,0.75
+What is the recommended LDL cholesterol target for diabetic patients with cardiovascular disease?,An LDL cholesterol of less than 70 mg/dL is recommended for diabetic patients with established cardiovascular disease.,"For people with diabetes and established atherosclerotic cardiovascular disease (ASCVD), the recommended LDL cholesterol target is **<55 mg/dL** (<1.4 mmol/L) [SOURCE 5].
+
+This recommendation is supported by the following clinical guidance:
+*   **Therapy Intensity:** High-intensity statin therapy is",0.805,B,0.75
+How often should HbA1c be monitored in stable type 2 diabetes?,HbA1c should be measured every 3 months initially and every 6 months once stable glycaemic targets are achieved.,"For stable type 2 diabetes, HbA1c should be monitored at least every 6–12 months [SOURCE 2]. This aligns with the recommendation to measure HbA1c twice a year in people with type 2 diabetes [SOURCE 1]. More frequent monitoring (every 3 months) is recommended if values are not in the ideal target ran",0.7906,B,0.75
+What is diabetic ketoacidosis (DKA)?,"DKA is a life-threatening complication of diabetes characterised by hyperglycaemia, ketosis, and metabolic acidosis, most common in type 1 diabetes.","🚨 EMERGENCY ALERT: This query describes symptoms that may require immediate medical attention. Please call emergency services (112 / 108 in India) or go to the nearest emergency department immediately. Do not rely on this system in an emergency.
+
+⚠️ This information is for educational purposes only ",0.779,A,0.75
+What are GLP-1 receptor agonists used for in diabetes?,"GLP-1 receptor agonists lower blood glucose, promote weight loss, and reduce cardiovascular risk in type 2 diabetes.","Based on the provided evidence, GLP-1 receptor agonists (GLP-1 RAs) are used for the following purposes in diabetes:
+
+*   **Treatment of Type 2 Diabetes:** They are increasingly used for the treatment of type 2 diabetes [SOURCE 1].
+*   **Management of Type 2 Diabetes:** They are widely used for the ",0.7438,A,0.75
+What screening is recommended for diabetic nephropathy?,Annual screening for albuminuria and eGFR is recommended for all patients with diabetes to detect diabetic nephropathy early.,"The provided evidence does not clearly address this question.
+
+⚠️ This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",0.765,B,0.75
+At what HbA1c level should insulin therapy be initiated in type 2 diabetes?,Insulin therapy should be considered when HbA1c remains above 10% despite oral therapy or when hyperglycaemic symptoms are present.,"Based on the provided evidence, insulin therapy for type 2 diabetes should be considered or initiated under the following conditions:
+
+*   **Severe Hyperglycemia:** Insulin should be considered first-line treatment in patients with severe hyperglycemia, defined as an **HbA1c greater than 10%** (or b",0.765,B,0.75
+What is the Diabetes Prevention Program (DPP)?,The DPP was a landmark RCT showing intensive lifestyle intervention reduced progression to type 2 diabetes by 58% in high-risk individuals.,"Based on the provided evidence, the Diabetes Prevention Program (DPP) is defined by the following characteristics:
+
+*   **Intervention Type:** It is a lifestyle/behavioral intervention that utilizes an individualized reduced-calorie meal plan [SOURCE 3].
+*   **Clinical Efficacy:** The DPP trial demo",0.7826,B,0.75
+What foot care is recommended for diabetic patients?,"Annual comprehensive foot examination including assessment of sensation, pulses, and skin integrity is recommended for all diabetic patients.","Based on the provided evidence, the following foot care recommendations and considerations are noted:
+
+*   **Screening:** Diabetic foot screening is a recommended component of care [SOURCE 2].
+*   **Management of Neuropathy:** If a patient presents with symptoms and signs of numbness and loss of sen",0.779,A,0.75
+What is the target BMI for overweight patients with type 2 diabetes?,Weight loss of 5-10% is beneficial; bariatric surgery may be considered for BMI ≥ 35 with inadequately controlled diabetes.,"The provided evidence does not clearly address this question.
+
+While the sources discuss weight management in type 2 diabetes, they do not specify a target BMI for overweight patients. The available evidence notes the following:
+*   Type 2 diabetes is often associated with obesity [SOURCE 1].
+*   Me",0.8286,A,0.75
+What is hyperosmolar hyperglycaemic state (HHS)?,"HHS is a serious complication of type 2 diabetes with extreme hyperglycaemia, severe dehydration, and hyperosmolality without significant ketosis.","The provided evidence does not clearly address this question.
+
+While the sources mention Hyperosmolar Hyperglycaemic State (HHS) as a hyperglycaemic emergency [SOURCE 1] and note that its presentation can range from euglycemia to mild hyperglycemia [SOURCE 3], they do not provide a specific definiti",0.8002,B,0.75
+Which diabetes medication has shown cardiovascular mortality benefit?,"SGLT2 inhibitors (empagliflozin, canagliflozin) and GLP-1 agonists (liraglutide, semaglutide) have shown cardiovascular mortality benefits in RCTs.","Based on the provided evidence, the following diabetes medications have shown cardiovascular mortality benefits:
+
+*   **SGLT2 inhibitors (specifically empagliflozin):**
+    *   A meta-analysis indicated that SGLT2 inhibitors reduce the risk of cardiovascular mortality in people with and without card",0.7966,A,0.75
+What is the recommended eye examination schedule for diabetic patients?,Dilated eye examination is recommended at diagnosis for type 2 diabetes and annually thereafter to screen for diabetic retinopathy.,"Based on the provided evidence, the recommended eye examination schedules vary by patient population and clinical context:
+
+**General Diabetic Patients**
+*   **Baseline:** An immediate baseline eye examination is mandatory for all diabetic patients, including recording of visual acuity and retinal e",0.7826,B,0.75
+What is the UKPDS study and its significance?,The UKPDS showed that intensive blood glucose control in newly diagnosed type 2 diabetes significantly reduces microvascular complications.,"The provided evidence does not clearly address this question.
+
+While the sources reference the **UK Prospective Diabetes Study (UKPDS)**, they do not provide a definition of the study or a detailed explanation of its general significance. The available text only lists specific citations and applicat",0.761,B,0.75
+What dietary pattern is recommended for type 2 diabetes management?,"Mediterranean, DASH, and low-carbohydrate dietary patterns are all effective for glycaemic control in type 2 diabetes.","Based on the provided evidence, there is no single universally defined ""optimal"" dietary pattern, but several specific patterns are highlighted as promising or under evaluation for Type 2 Diabetes (T2DM) management:
+
+*   **Mediterranean Diet:** This dietary pattern is described as a promising strate",0.787,A,0.75
+What is the role of self-monitoring blood glucose (SMBG) in type 2 diabetes?,SMBG is recommended for insulin-treated patients; continuous glucose monitoring (CGM) is increasingly preferred for comprehensive glucose data.,"Based on the provided evidence, the role of self-monitoring of blood glucose (SMBG) in type 2 diabetes is as follows:
+
+*   **Self-Management and Safety:** SMBG is a crucial component of self-management for patients with type 2 diabetes, enabling individuals to track blood glucose levels and promptly",0.749,B,0.75
+How does chronic kidney disease affect diabetes drug selection?,Metformin should be dose-reduced at eGFR 30-45 and stopped below 30. SGLT2 inhibitors have reduced efficacy at low eGFR. GLP-1 agonists are generally safe.,"Based on the provided evidence, chronic kidney disease (CKD) affects diabetes drug selection in the following ways:
+
+*   **Dosing and Safety Considerations:** The selection and management of oral antidiabetic drugs in patients with type 2 diabetes and CKD require specific attention to dosing adjustm",0.7934,A,0.75
+What vaccinations are recommended for people with diabetes?,"Annual influenza, pneumococcal, hepatitis B, and COVID-19 vaccines are recommended for adults with diabetes due to increased infection risk.","Based on the provided evidence, the following vaccinations are recommended for people with diabetes:
+
+*   **Routine Vaccinations:** Clinicians should provide routinely recommended vaccinations for both children and adults with diabetes as indicated by age [SOURCE 1].
+*   **COVID-19:** COVID-19 vacci",0.805,B,0.75
+What is gestational diabetes mellitus (GDM)?,"GDM is glucose intolerance first diagnosed during pregnancy, associated with increased risk of macrosomia, perinatal complications, and future type 2 diabetes.","Based on the provided evidence, Gestational Diabetes Mellitus (GDM) is defined and characterized as follows:
+
+*   **Definition:** GDM is defined as glucose intolerance of any severity that is detected for the first time during pregnancy [SOURCE 2]. It is traditionally described as a disorder of hype",0.7838,A,0.75
+What is the recommended screening for GDM?,Universal screening at 24-28 weeks gestation using a 75g oral glucose tolerance test (OGTT) is recommended.,"The provided evidence does not clearly address this question.
+
+While the sources mention screening for Cystic Fibrosis-Related Diabetes (CFRD) using an Oral Glucose Tolerance Test (OGTT) [SOURCE 1] and discuss postpartum screening for glucose intolerance in women with a history of Gestational Diabet",0.7358,A,0.75
+What is the mechanism of action of SGLT2 inhibitors?,"SGLT2 inhibitors block sodium-glucose co-transporter 2 in the proximal renal tubule, increasing urinary glucose excretion and lowering blood glucose.","The provided evidence does not clearly address this question.
+
+While [SOURCE 1] mentions that SGLT2 inhibitors have a ""unique renal mechanism of action"" and summarizes their ""metabolic mechanisms,"" it does not explicitly describe the specific physiological or biochemical steps of that mechanism (e.g",0.6658,B,0.75
+What are the side effects of SGLT2 inhibitors?,"Common side effects include genital mycotic infections, urinary tract infections, and rare risk of diabetic ketoacidosis and Fournier's gangrene.","Based on the provided evidence, the following side effects and safety concerns associated with SGLT2 inhibitors are identified:
+
+*   **Euglycemic Diabetic Ketoacidosis (EDKA):** This is described as a life-threatening metabolic emergency [SOURCE 5]. The incidence and recognition of EDKA have increas",0.771,A,0.75
+What is prediabetes and how is it defined?,Prediabetes is defined as impaired fasting glucose (100-125 mg/dL) or impaired glucose tolerance (2h OGTT 140-199 mg/dL) or HbA1c 5.7-6.4%.,"Based on the provided evidence, prediabetes is defined and characterized as follows:
+
+*   **Definition and Status:** Prediabetes is a condition where blood glucose levels are elevated but do not meet the diagnostic criteria for diabetes [SOURCE 3]. It is described as a transitional stage from normal",0.8078,A,0.75
+What physical activity is recommended for type 2 diabetes?,At least 150 minutes of moderate-intensity aerobic activity per week and resistance training 2-3 times per week are recommended.,"Based on the provided evidence, specific quantitative physical activity recommendations (such as duration or intensity) for type 2 diabetes are not explicitly detailed in the text. However, the following points regarding physical activity for type 2 diabetes are supported by the sources:
+
+*   **Gene",0.7554,B,0.75
+What is the ACCORD trial and what did it show?,The ACCORD trial showed that intensive glycaemic control targeting HbA1c below 6% increased cardiovascular mortality in high-risk T2DM patients.,"The provided evidence does not clearly address this question.
+
+⚠️ This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",0.709,B,0.75
+What causes diabetic peripheral neuropathy?,"Diabetic peripheral neuropathy results from chronic hyperglycaemia causing oxidative stress, inflammation, and microvascular damage to peripheral nerves.","Based on the provided evidence, the causes and mechanisms of diabetic peripheral neuropathy (DPN) include:
+
+*   **Sensory Neuron Damage:** Painful DPN arises from damage to sensory neurons [SOURCE 1].
+*   **Biological Mechanisms and Risk Factors:** The condition is associated with specific biologica",0.7138,B,0.75
+What are first-line treatments for painful diabetic neuropathy?,"Pregabalin, duloxetine, and gabapentin are first-line pharmacological treatments for painful diabetic peripheral neuropathy.","The provided evidence does not clearly address this question.
+
+The sources provided discuss specific interventions for painful diabetic neuropathy (PDN), including:
+*   A multimodal manual therapy, exercise, and psychological intervention [SOURCE 1].
+*   Spinal Cord Stimulation (including high-frequ",0.779,A,0.75
+What is the role of ACE inhibitors in diabetic nephropathy?,ACE inhibitors and ARBs reduce proteinuria and slow progression of diabetic nephropathy and are recommended in patients with albuminuria.,"Based on the provided evidence, the role of ACE inhibitors in diabetic nephropathy (diabetic kidney disease) is as follows:
+
+*   **First-Line Therapy:** ACE inhibitors are preferred first-line agents for blood pressure treatment in individuals with diabetes, hypertension, an eGFR <60 mL/min/1.73 m²,",0.805,B,0.75
+What is continuous glucose monitoring (CGM)?,"CGM measures interstitial glucose continuously, providing real-time glucose values, trends, and alerts for hypoglycaemia and hyperglycaemia.","Based on the provided evidence, Continuous Glucose Monitoring (CGM) is defined by the following characteristics:
+
+*   **Measurement Method:** CGM measures interstitial glucose over time [SOURCE 2].
+*   **Data Output:** It offers real-time and longitudinal insights into glycemic patterns, time in ran",0.7122,B,0.75
+What is the diagnostic criterion for type 1 diabetes?,"Type 1 diabetes is diagnosed by hyperglycaemia with positive islet autoantibodies (GAD, IA-2, ZnT8) and absolute insulin deficiency.","The provided evidence does not clearly address this question.
+
+While the sources mention that diagnostic criteria for type 1 diabetes were updated in 2024 based on FDA approval of a new drug to delay its incidence [SOURCE 1], and define type 1 diabetes as characterized by deficient insulin productio",0.7826,B,0.75
+What is insulin resistance?,"Insulin resistance is a condition where cells fail to respond normally to insulin, requiring higher insulin levels to maintain glucose homeostasis.","The provided evidence does not clearly address this question.
+
+While [SOURCE 1] mentions ""insulin resistance"" as a metabolic consequence associated with PCOS, it does not provide a definition or explanation of what insulin resistance is. [SOURCE 2] discusses insulin therapy for Type 2 diabetes but d",0.717,B,0.75
+What is the dawn phenomenon in diabetes?,The dawn phenomenon is early morning hyperglycaemia caused by nocturnal growth hormone and cortisol surges increasing insulin resistance.,"The dawn phenomenon (DP) is defined as the occurrence of spontaneous early-morning hyperglycemia in the absence of overnight hypoglycemia, or a condition that necessitates an elevation in insulin to sustain normal morning blood glucose levels [SOURCE 1]. It is characterized by a rise in glucose leve",0.7966,A,0.75
+What is bariatric surgery's effect on type 2 diabetes?,Bariatric surgery achieves type 2 diabetes remission in 30-63% of patients and is recommended for BMI ≥ 35 with inadequately controlled diabetes.,"Based on the provided evidence, bariatric surgery has the following effects on type 2 diabetes (T2DM):
+
+*   **Effectiveness:** Metabolic/bariatric surgery is described as an effective intervention for individuals with obesity and T2DM, with benefits that extend beyond weight loss [SOURCE 2]. It is a",0.725,B,0.75
+What is the role of zinc in diabetes?,"Zinc is essential for insulin synthesis, storage, and secretion; zinc transporter 8 (ZnT8) autoantibodies are a marker for type 1 diabetes.","Based on the provided evidence, the role of zinc in diabetes is described as follows:
+
+*   **Biological Functions:** Zinc plays a key biological role in insulin synthesis, storage, signalling, and antioxidant defence [SOURCE 1].
+*   **Clinical Relevance:** The clinical relevance and consistency of z",0.773,A,0.75
+What is latent autoimmune diabetes in adults (LADA)?,LADA is a slowly progressive autoimmune form of diabetes in adults that initially resembles type 2 diabetes but has positive GAD antibodies.,"Based on the provided evidence, Latent Autoimmune Diabetes in Adults (LADA) is defined by the following characteristics:
+
+*   **Classification and Onset:** It is a complex and heterogeneous form of autoimmune diabetes characterized by adult onset [SOURCE 1] [SOURCE 3]. It is classified as a form of ",0.7394,B,0.75
+What is the recommended protein intake for patients with diabetic nephropathy?,A protein intake of 0.8 g/kg body weight per day is recommended for patients with diabetic nephropathy to slow renal progression.,"Based on the provided evidence, the recommended protein intake for patients with diabetic nephropathy (or diabetic kidney disease) is as follows:
+
+*   **General Recommendation:** The recommended daily allowance is **0.8 g/kg/day** [SOURCE 3] [SOURCE 5].
+*   **Restriction:** Reducing dietary protein ",0.7874,B,0.75
+What is the mechanism of metformin?,"Metformin primarily reduces hepatic glucose production by activating AMPK and inhibiting mitochondrial complex I, with additional gut effects.","Based on the provided evidence, the mechanisms of action for metformin include:
+
+*   **Reduction of hepatic gluconeogenesis:** This is identified as the main mechanism of action, which also involves improving insulin sensitivity and modulating glucose metabolism [SOURCE 1].
+*   **Enhancement of insu",0.7342,A,0.75
+What are the symptoms of hypoglycaemia?,"Symptoms include sweating, tremor, palpitations, anxiety, confusion, and loss of consciousness; blood glucose below 70 mg/dL defines hypoglycaemia.","The provided evidence does not clearly address this question.
+
+While [SOURCE 1] mentions assessing hypoglycemia risk by asking individuals about their symptoms and the blood glucose levels at which they begin to feel them, it does not list specific symptoms of hypoglycemia. [SOURCE 2] discusses anxi",0.805,B,0.75
+What is the 15-15 rule for hypoglycaemia treatment?,"Consume 15 grams of fast-acting carbohydrate, wait 15 minutes, recheck glucose; repeat if still below 70 mg/dL.","The provided evidence does not clearly address this question.
+
+⚠️ This information is for educational purposes only and does not constitute medical advice. Always consult a qualified healthcare professional before making any clinical decisions.",0.7623,B,0.75
+What are DPP-4 inhibitors used for?,DPP-4 inhibitors (gliptins) increase incretin levels to lower postprandial glucose; they are weight-neutral with low hypoglycaemia risk.,"Based on the provided evidence, DPP-4 inhibitors are used for the following purposes:
+
+*   **Treatment of Type 2 Diabetes Mellitus (T2DM):** They are classified as incretin-based agents specifically for T2DM [SOURCE 2].
+*   **Therapeutic Positioning:**
+    *   They are best used in combination with ",0.7982,A,0.75
+What is the role of diet in managing gestational diabetes?,Medical nutrition therapy controlling carbohydrate intake is first-line treatment for GDM; insulin is added if glucose targets are not met.,"Based on the provided evidence, the role of diet in managing and preventing gestational diabetes (GDM) is summarized below:
+
+*   **Prevention of GDM:** Suboptimal diet during pregnancy is identified as an important modifiable risk factor for developing gestational diabetes [SOURCE 1].
+*   **Manageme",0.8286,A,0.75
+What causes diabetic retinopathy?,"Chronic hyperglycaemia causes retinal microvascular damage through pericyte loss, basement membrane thickening, and neovascularisation.","Based on the provided evidence, the causes and drivers of diabetic retinopathy (DR) include:
+
+*   **Chronic Hyperglycemia:** The development of DR is driven by complex, interconnected pathophysiological mechanisms triggered by chronic hyperglycemia [SOURCE 1].
+*   **Neurovascular Complications:** DR",0.6962,B,0.75
+What is the EMPA-REG OUTCOME trial?,EMPA-REG OUTCOME showed empagliflozin reduced cardiovascular death by 38% and hospitalisation for heart failure by 35% in T2DM patients with CVD.,"Based on the provided evidence, the EMPA-REG OUTCOME trial is defined as follows:
+
+*   **Full Name:** It is formally identified as the ""Empagliflozin Cardiovascular Outcome Event Trial in Type 2 Diabetes Mellitus Patients"" [SOURCE 2].
+*   **Study Population:** The trial involved participants with ty",0.805,B,0.75

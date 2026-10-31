@@ -1,0 +1,28 @@
+{
+  "timestamp": "20261020_145651",
+  "questions_attempted": 50,
+  "successful_api_responses": 50,
+  "api_errors": 0,
+  "category_counts": {
+    "answerable": 40,
+    "unsupported": 5,
+    "unanswerable": 5
+  },
+  "answered_with_evidence": 48,
+  "safe_abstentions": 2,
+  "expected_abstention_count": 10,
+  "correct_abstention_count": 2,
+  "correct_abstention_rate": 0.2,
+  "average_confidence_all_successful": 0.563894,
+  "average_confidence_answered_with_evidence": 0.5873895833333334,
+  "average_internal_faithfulness_answered_with_evidence": 0.39054791666666666,
+  "hallucination_flag_count": 36,
+  "hallucination_flag_rate_answered_with_evidence": 0.75,
+  "hallucination_flag_coverage": 48,
+  "contradiction_flag_count": 5,
+  "contradiction_flag_rate_answered_with_evidence": 0.10416666666666667,
+  "contradiction_flag_coverage": 48,
+  "average_citation_count_answered_with_evidence": 4.583333333333333,
+  "ragas_metrics": {},
+  "note": "Heuristic metrics are not clinical validation. Faithfulness and flag rates are reported for answers with retrieved citations; evidence abstentions are reported separately. Correct-abstention rate uses unsupported and unanswerable evaluation items only. API errors are separate from abstentions."
+}

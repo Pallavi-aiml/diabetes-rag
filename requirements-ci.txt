@@ -1,0 +1,8 @@
+# Lightweight set used by CI (no torch / chroma / sentence-transformers).
+python-dotenv
+pydantic>=2
+fastapi
+httpx
+pytest
+rank-bm25
+numpy

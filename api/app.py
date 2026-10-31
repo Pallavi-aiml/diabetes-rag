@@ -14,6 +14,9 @@ import logging
 import math
 import os
 import sys
+import time
+from collections import defaultdict, deque
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -24,16 +27,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-from fastapi import BackgroundTasks, FastAPI, HTTPException
+from fastapi import BackgroundTasks, Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 import mlflow
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
-from config import COLLECTION_NAME, ABSTAIN_FAITHFULNESS_THRESHOLD
+from config import COLLECTION_NAME, ABSTAIN_FAITHFULNESS_THRESHOLD, API_KEY
 from ingestion.embedder import get_chroma_collection
 from ingestion.chunker import load_chunks
 from retrieval.retriever import hybrid_retrieve
@@ -53,10 +56,17 @@ def utc_now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+@asynccontextmanager
+async def lifespan(_app):
+    await startup_event()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="Evidence-Verified RAG — Diabetes Care",
     description="Evidence-grounded diabetes information with optional educational risk estimation.",
-    version="3.1.0",
+    version="4.2.0",
 )
 
 # Set ALLOWED_ORIGINS to a comma-separated list in deployment.
@@ -81,6 +91,26 @@ _all_chunks = []
 _feedback_log_path = PROJECT_ROOT / "data" / "feedback_log.jsonl"
 
 
+# -- Optional API-key auth + tiny in-memory rate limiter -----------------------
+RATE_LIMIT_PER_MIN = int(os.getenv("RATE_LIMIT_PER_MIN", "30"))
+_hits: dict = defaultdict(deque)
+
+
+def guard(request: Request):
+    """If API_KEY is set require X-API-Key; always apply a per-client rate limit."""
+    if API_KEY and request.headers.get("x-api-key") != API_KEY:
+        raise HTTPException(status_code=401, detail="Missing or invalid API key.")
+    if RATE_LIMIT_PER_MIN > 0:
+        client = request.client.host if request.client else "unknown"
+        now = time.monotonic()
+        window = _hits[client]
+        while window and now - window[0] > 60:
+            window.popleft()
+        if len(window) >= RATE_LIMIT_PER_MIN:
+            raise HTTPException(status_code=429, detail="Rate limit exceeded. Try again shortly.")
+        window.append(now)
+
+
 class PatientParams(BaseModel):
     Pregnancies: Optional[float] = Field(None, ge=0, le=30)
     Glucose: Optional[float] = Field(None, ge=0, le=600)
@@ -91,14 +121,14 @@ class PatientParams(BaseModel):
     DiabetesPedigreeFunction: Optional[float] = Field(None, ge=0, le=20)
     Age: Optional[float] = Field(None, ge=1, le=120)
 
-    @validator("*", allow_reuse=True)
+    @field_validator("*")
+    @classmethod
     def values_must_be_finite(cls, value):
         if value is not None and not math.isfinite(value):
             raise ValueError("Patient values must be finite numbers.")
         return value
 
-    class Config:
-        extra = "forbid"
+    model_config = ConfigDict(extra="forbid")
 
 
 class QueryRequest(BaseModel):
@@ -107,7 +137,8 @@ class QueryRequest(BaseModel):
     use_local_llm: bool = False
     top_k: int = Field(5, ge=1, le=10)
 
-    @validator("question")
+    @field_validator("question")
+    @classmethod
     def question_must_not_be_blank(cls, value):
         if not value.strip():
             raise ValueError("Question must not be blank.")
@@ -165,6 +196,11 @@ class QueryResponse(BaseModel):
     llm_used: str
     timestamp: str
     abstained: bool = False
+    # v4: claim-level verification transparency
+    insufficient_evidence: bool = False   # the model itself said the evidence is not enough
+    supported_ratio: float = 0.0
+    citation_coverage: float = 0.0
+    unsupported_claims: list[str] = []
 
 
 class FeedbackRequest(BaseModel):
@@ -173,14 +209,14 @@ class FeedbackRequest(BaseModel):
     rating: int = Field(..., ge=1, le=5)
     comment: Optional[str] = Field(None, max_length=2000)
 
-    @validator("question", "answer")
+    @field_validator("question", "answer")
+    @classmethod
     def feedback_text_must_not_be_blank(cls, value):
         if not value.strip():
             raise ValueError("This field must not be blank.")
         return value.strip()
 
 
-@app.on_event("startup")
 async def startup_event():
     """Load the knowledge base; keep startup alive so health can report degraded state."""
     global _collection, _all_chunks
@@ -381,6 +417,7 @@ def _abstention_response(
     grade: str = "D",
     avg_credibility: float = 0.0,
     contradictions_found: bool = False,
+    insufficient_evidence: bool = False,
 ):
     risk_resp, shap_resp = _pack_risk(risk_result_raw, shap_result_raw)
     answer = build_final_answer(
@@ -408,10 +445,11 @@ def _abstention_response(
         llm_used=llm_used,
         timestamp=utc_now_iso(),
         abstained=True,
+        insufficient_evidence=insufficient_evidence,
     )
 
 
-@app.post("/query", response_model=QueryResponse)
+@app.post("/query", response_model=QueryResponse, dependencies=[Depends(guard)])
 async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
     if _collection is None or not _all_chunks:
         raise HTTPException(status_code=503, detail="Knowledge base not ready.")
@@ -575,6 +613,7 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
             grade=conf_report.get("grade", "D"),
             avg_credibility=float(conf_report.get("avg_credibility", 0.0) or 0.0),
             contradictions_found=bool(conf_report.get("contradictions")),
+            insufficient_evidence=bool(conf_report.get("insufficient_evidence", False)),
         )
 
     # Clearly separate model output from evidence-based medical guidance.
@@ -617,10 +656,14 @@ async def query_endpoint(req: QueryRequest, background_tasks: BackgroundTasks):
         llm_used=get_llm_name(),
         timestamp=utc_now_iso(),
         abstained=False,
+        insufficient_evidence=False,
+        supported_ratio=conf_report.get("supported_ratio", 0.0),
+        citation_coverage=conf_report.get("citation_coverage", 0.0),
+        unsupported_claims=conf_report.get("unsupported_claims", []),
     )
 
 
-@app.post("/feedback")
+@app.post("/feedback", dependencies=[Depends(guard)])
 async def feedback(req: FeedbackRequest):
     """Append feedback without replacing feedback saved by earlier processes."""
     entry = {

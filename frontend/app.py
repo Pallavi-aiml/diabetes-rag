@@ -12,6 +12,8 @@ import requests
 import pandas as pd
 
 API_URL = os.getenv("API_URL", "http://localhost:8000").rstrip("/")
+API_KEY = os.getenv("API_KEY", "")
+HEADERS = {"X-API-Key": API_KEY} if API_KEY else {}
 
 st.set_page_config(
     page_title="Diabetes Care Assistant",
@@ -68,7 +70,7 @@ with st.sidebar:
     # LLM status
     st.subheader("LLM Status")
     st.markdown("""
-<span class='llm-badge'>Groq — qwen/qwen3.8-27b</span>
+<span class='llm-badge'>Groq (primary) · OpenAI (fallback) · Ollama (optional)</span>
 <br><small>Free API · fast response</small>
 """, unsafe_allow_html=True)
     st.divider()
@@ -179,7 +181,7 @@ if submit and query:
                 "top_k":          top_k,
                 "patient_params": patient_params,
             }
-            resp = requests.post(f"{API_URL}/query", json=payload, timeout=120)
+            resp = requests.post(f"{API_URL}/query", json=payload, headers=HEADERS, timeout=120)
             if resp.status_code == 503:
                 st.error("Knowledge base not ready.")
                 st.stop()
@@ -303,11 +305,22 @@ if st.session_state.last_response:
 
     # Warnings
     if data.get("abstained"):
-        st.info("The system abstained from a grounded clinical answer for this question.")
+        if data.get("insufficient_evidence"):
+            st.info("The retrieved sources did not contain a clear answer to this question, so the system "
+                    "declined to give one. Try a more specific question.")
+        else:
+            st.info("The system abstained from a grounded clinical answer for this question.")
     if data.get("contradictions_found"):
         st.warning("⚠️ Conflicting evidence detected across retrieved sources.")
-    if data.get("hallucination_risk"):
-        st.warning("🔶 Low faithfulness score — treat with additional caution.")
+    if data.get("hallucination_risk") and not data.get("abstained"):
+        ratio = data.get("supported_ratio", 0.0)
+        st.warning(f"🔶 Only {ratio:.0%} of the answer's claims are supported by the retrieved evidence — "
+                   "treat with additional caution.")
+        unsupported = data.get("unsupported_claims") or []
+        if unsupported:
+            with st.expander(f"Claims not supported by the sources ({len(unsupported)})"):
+                for claim in unsupported:
+                    st.markdown(f"- {claim}")
 
     st.divider()
 
@@ -345,7 +358,7 @@ if st.session_state.last_response:
 
     if st.button("Submit feedback"):
         try:
-            requests.post(f"{API_URL}/feedback", json={
+            requests.post(f"{API_URL}/feedback", headers=HEADERS, json={
                 "question": data["question"],
                 "answer":   data["answer"],
                 "rating":   rating,

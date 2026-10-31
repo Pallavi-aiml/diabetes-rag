@@ -282,18 +282,22 @@ def select_questions(limit: int) -> list[dict]:
 # Collect RAG responses for evaluation
 # ---------------------------------------------------------------------------
 
-def collect_rag_responses(questions: list[dict], use_local: bool = False) -> list[dict]:
+def collect_rag_responses(questions: list[dict], use_local: bool = False, delay: float = 0.0) -> list[dict]:
     """Query the running API and collect answer, retrieved contexts, and verifier flags."""
     print(f"Collecting RAG responses for {len(questions)} questions…")
     results = []
 
     for i, item in enumerate(questions):
+        if i and delay > 0:
+            import time as _time
+            _time.sleep(delay)
         q = item["question"]
         print(f"  [{i + 1}/{len(questions)}] [{item.get('category', 'answerable')}] {q[:70]}…")
         try:
             resp = requests.post(
                 f"{API_URL.rstrip('/')}/query",
                 json={"question": q, "use_local_llm": use_local, "top_k": 5},
+                headers=({"X-API-Key": os.getenv("API_KEY")} if os.getenv("API_KEY") else {}),
                 timeout=180,
             )
             if resp.status_code != 200:
@@ -337,6 +341,8 @@ def collect_rag_responses(questions: list[dict], use_local: bool = False) -> lis
                 "hallucination_risk": safe_bool(data.get("hallucination_risk")),
                 "contradictions_found": safe_bool(data.get("contradictions_found")),
                 "citation_count": len(citations),
+                "supported_ratio": safe_float(data.get("supported_ratio")),
+                "insufficient_evidence": bool(data.get("insufficient_evidence", False)),
                 "abstained": bool(data.get("abstained")) or any(
                     phrase in answer.lower() for phrase in (
                         "does not adequately answer", "does not clearly address",
@@ -591,11 +597,12 @@ if __name__ == "__main__":
     parser.add_argument("--local", action="store_true", default=False, help="Use local LLM (Ollama)")
     parser.add_argument("--limit", type=int, default=50, help="Number of questions to evaluate (10–50 recommended)")
     parser.add_argument("--skip-ragas", action="store_true", help="Skip RAGAS evaluation (faster)")
+    parser.add_argument("--delay", type=float, default=0.0, help="Seconds to wait between questions (use 3-6 to avoid LLM rate limits)")
     args = parser.parse_args()
 
     questions = select_questions(args.limit)
     print(f"Starting evaluation on {len(questions)} questions using API: {API_URL}")
-    results = collect_rag_responses(questions, use_local=args.local)
+    results = collect_rag_responses(questions, use_local=args.local, delay=args.delay)
 
     ragas_scores = {}
     if not args.skip_ragas and results:
