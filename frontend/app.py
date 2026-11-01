@@ -115,13 +115,13 @@ with st.expander(
 
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        glucose = st.number_input("Glucose (mg/dL)",       0.0, 300.0, 0.0, step=1.0)
+        glucose = st.number_input("2-hour OGTT plasma glucose (mg/dL)",       0.0, 300.0, 0.0, step=1.0)
         bmi     = st.number_input("BMI (kg/m²)",           0.0,  70.0, 0.0, step=0.1)
     with col2:
         bp      = st.number_input("Blood Pressure (mmHg)", 0.0, 200.0, 0.0, step=1.0)
         age     = st.number_input("Age (years)",            0.0, 120.0, 0.0, step=1.0)
     with col3:
-        insulin = st.number_input("Insulin (μU/mL)",       0.0, 900.0, 0.0, step=1.0)
+        insulin = st.number_input("2-hour serum insulin (μU/mL)",       0.0, 900.0, 0.0, step=1.0)
         preg    = st.number_input("Pregnancies",            0.0,  20.0, 0.0, step=1.0)
     with col4:
         skin    = st.number_input("Skin Thickness (mm)",   0.0, 100.0, 0.0, step=1.0)

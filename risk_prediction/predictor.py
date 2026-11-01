@@ -38,10 +38,10 @@ FEATURE_NAMES = [
 
 FEATURE_DISPLAY = {
     "Pregnancies": "Number of Pregnancies",
-    "Glucose": "Fasting Plasma Glucose (mg/dL)",
+    "Glucose": "2-hour Plasma Glucose in OGTT (mg/dL)",
     "BloodPressure": "Diastolic Blood Pressure (mm Hg)",
     "SkinThickness": "Skin Fold Thickness (mm)",
-    "Insulin": "Serum Insulin (uU/mL)",
+    "Insulin": "2-hour Serum Insulin in OGTT (uU/mL)",
     "BMI": "Body Mass Index (kg/m²)",
     "DiabetesPedigreeFunction": "Diabetes Pedigree (Family History)",
     "Age": "Age (years)",

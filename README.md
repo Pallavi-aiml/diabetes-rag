@@ -16,7 +16,7 @@ doesn't contain enough relevant evidence, the system **abstains** instead of gue
 flowchart LR
     Q[Question + optional patient params] --> R[Risk model<br/>XGBoost + TreeSHAP]
     Q --> H
-    R -->|enriched query| H
+    R -->|"risk score + SHAP: shown with the answer, not used for retrieval"| O
     subgraph Retrieval
       H[Hybrid retrieval<br/>PubMedBERT dense + BM25] --> F[Reciprocal Rank Fusion]
       F --> X[Cross-encoder rerank]
